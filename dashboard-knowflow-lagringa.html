@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KnowFlow · Control de Calidad · Serigrafía La Gringa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EF;
+    --surface: #FFFFFF;
+    --surface2: #EEECE8;
+    --border: #E0DDD7;
+    --text: #1A1916;
+    --muted: #7A7771;
+    --orange: #E8541A;
+    --orange-light: #FEF0EA;
+    --orange-mid: #F5855A;
+    --blue: #1D4ED8;
+    --blue-light: #EEF2FF;
+    --green: #15803D;
+    --green-light: #F0FDF4;
+    --amber: #B45309;
+    --amber-light: #FFFBEB;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --radius: 10px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  .logo-kf {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+  .logo-kf span { color: var(--orange); }
+
+  .divider-v { width: 1px; height: 24px; background: var(--border); }
+
+  .client-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--orange-light);
+    border: 1px solid #F5C4AD;
+    border-radius: 20px;
+    padding: 4px 12px 4px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--orange);
+  }
+
+  .client-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--orange);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .last-update {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .btn-refresh {
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s;
+  }
+  .btn-refresh:hover { background: #C8431A; }
+  .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* FILTERS BAR */
+  .filters-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+  }
+
+  .filter-group { display: flex; align-items: center; gap: 8px; }
+
+  select, input[type="date"] {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  select:focus, input[type="date"]:focus { border-color: var(--orange); }
+
+  .filter-sep { color: var(--muted); font-size: 12px; }
+
+  .btn-week {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-week:hover, .btn-week.active {
+    background: var(--orange);
+    color: white;
+    border-color: var(--orange);
+  }
+
+  .filter-clear {
+    font-size: 12px;
+    color: var(--orange);
+    cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    font-family: var(--font);
+  }
+
+  /* MAIN CONTENT */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .status-bar strong { color: var(--text); }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .kpi-card.orange .kpi-value { color: var(--orange); }
+  .kpi-card.blue .kpi-value { color: var(--blue); }
+  .kpi-card.green .kpi-value { color: var(--green); }
+  .kpi-card.amber .kpi-value { color: var(--amber); }
+  .kpi-card.red .kpi-value { color: var(--red); }
+
+  .kpi-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .kpi-card.orange .kpi-icon { background: var(--orange-light); }
+  .kpi-card.blue .kpi-icon { background: var(--blue-light); }
+  .kpi-card.green .kpi-icon { background: var(--green-light); }
+  .kpi-card.amber .kpi-icon { background: var(--amber-light); }
+  .kpi-card.red .kpi-icon { background: var(--red-light); }
+
+  /* CHARTS GRID */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .card-tag {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .card-body { padding: 20px 24px; }
+
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* INSIGHTS */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .insight-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .insight-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+  }
+
+  .insight-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* TABLE */
+  .table-section { margin-bottom: 24px; }
+
+  .table-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 12px 16px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .td-ot {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--orange);
+    background: var(--orange-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+
+  /* LOADING / ERROR */
+  .loading-state {
+    display: flex; align-items: center; justify-content: center;
+    padding: 60px 20px;
+    flex-direction: column; gap: 12px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* CONFIG MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 32px;
+    width: 480px;
+    max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .modal h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; display: block; }
+
+  .field-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field-input:focus { border-color: var(--orange); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+
+  .btn-primary {
+    flex: 1;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #C8431A; }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-family: var(--font);
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
+
+  .btn-config {
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .btn-config:hover { border-color: var(--orange); color: var(--orange); }
+
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+
+  .period-display {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  .defect-bar-wrap { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .defect-bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .defect-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .defect-pct { font-family: var(--mono); font-size: 11px; color: var(--muted); min-width: 48px; text-align: right; }
+
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay open" id="configModal">
+  <div class="modal">
+    <h2>⚙️ Configurar Dashboard</h2>
+    <p>Ingresa tus credenciales de Airtable. Solo se guardan en tu navegador y nunca se comparten.</p>
+    <div class="field-group">
+      <label class="field-label">API TOKEN DE AIRTABLE</label>
+      <input class="field-input" id="apiTokenInput" type="password" placeholder="patXXXXXXXXXXXXXX.XXXX..." />
+    </div>
+    <div class="field-group">
+      <label class="field-label">BASE ID</label>
+      <input class="field-input" id="baseIdInput" type="text" placeholder="appXXXXXXXXXXXXXX" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="saveConfig()">Conectar y cargar datos</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-kf">Know<span>Flow</span></div>
+    <div class="divider-v"></div>
+    <div class="client-badge">
+      <div class="client-dot"></div>
+      Serigrafía La Gringa
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-left:4px;">· Control de Calidad</div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">—</span>
+    <button class="btn-config" onclick="openModal()">⚙ Configurar</button>
+    <button class="btn-refresh" id="refreshBtn" onclick="loadAll()">
+      <span>↻</span> Actualizar
+    </button>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <span class="filter-label">Vista</span>
+  <div class="filter-group">
+    <button class="btn-week active" id="btnSemana" onclick="setView('semana')">Semanal</button>
+    <button class="btn-week" id="btnConsolidado" onclick="setView('consolidado')">Consolidado</button>
+    <button class="btn-week" id="btnPersonalizado" onclick="setView('personalizado')">Personalizado</button>
+  </div>
+
+  <div class="divider-v"></div>
+
+  <div class="filter-group" id="weekNav">
+    <button class="btn-week" onclick="prevWeek()">‹</button>
+    <span class="period-display" id="periodDisplay">Cargando...</span>
+    <button class="btn-week" onclick="nextWeek()">›</button>
+  </div>
+
+  <div class="filter-group" id="dateRange" style="display:none;">
+    <input type="date" id="dateFrom" onchange="applyDateFilter()" />
+    <span class="filter-sep">→</span>
+    <input type="date" id="dateTo" onchange="applyDateFilter()" />
+  </div>
+
+  <div class="filter-group">
+    <span class="filter-label" style="margin-left:8px;">Técnica</span>
+    <select id="filterTecnica" onchange="applyFilters()">
+      <option value="">Todas</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <span class="filter-label">Cliente</span>
+    <select id="filterCliente" onchange="applyFilters()">
+      <option value="">Todos</option>
+    </select>
+  </div>
+
+  <button class="filter-clear" onclick="clearFilters()">✕ Limpiar</button>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    <span id="statusText">Esperando configuración...</span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card orange">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-label">Total de Casos</div>
+      <div class="kpi-value" id="kpiCasos">—</div>
+      <div class="kpi-sub" id="kpiCasosSub">—</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">Órdenes de Trabajo</div>
+      <div class="kpi-value" id="kpiOT">—</div>
+      <div class="kpi-sub" id="kpiOTSub">—</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-label">% Defectos por OT</div>
+      <div class="kpi-value" id="kpiDefPct">—</div>
+      <div class="kpi-sub" id="kpiDefPctSub">—</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-label">Defectos Confirmados</div>
+      <div class="kpi-value" id="kpiConfirmados">—</div>
+      <div class="kpi-sub" id="kpiConfirmadosSub">—</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-icon">🔍</div>
+      <div class="kpi-label">Total Defectos</div>
+      <div class="kpi-value" id="kpiTotalDef">—</div>
+      <div class="kpi-sub" id="kpiTotalDefSub">—</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Distribución por Tipo de Caso</span>
+        <span class="card-tag">casos</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap"><canvas id="chartCasos"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Defectos en Muestras</span>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#1D4ED8;"></div>Confirmado</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#DC2626;"></div>No Confirmado</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap"><canvas id="chartMuestras"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEFECT TYPES -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+      <span class="card-title">Tipos de Defectos Detectados</span>
+      <span class="card-tag">registro defectos</span>
+    </div>
+    <div class="card-body" id="defectBars">
+      <div class="empty-state">Carga los datos para ver los tipos de defecto</div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+      <span class="card-title">💡 Insights y Recomendaciones</span>
+    </div>
+    <div class="card-body">
+      <div class="insights-grid" id="insightsGrid">
+        <div class="insight-card">
+          <div class="insight-title"><div class="insight-dot"></div>Tipo de Caso más Frecuente</div>
+          <div class="insight-text" id="insightCaso">Cargando...</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-title"><div class="insight-dot"></div>Defectos Principales</div>
+          <div class="insight-text" id="insightDefecto">Cargando...</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-title"><div class="insight-dot"></div>% Defectos por OT</div>
+          <div class="insight-text" id="insightPct">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card table-section">
+    <div class="card-header table-header">
+      <span class="card-title">📊 Detalle por Orden de Trabajo</span>
+      <span class="card-tag" id="tableCount">0 registros</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>OT</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Técnica</th>
+            <th>Producto</th>
+            <th>Cant. OT</th>
+            <th>% Defectos</th>
+            <th>Def. Totales</th>
+            <th>Confirmados</th>
+            <th>No Conf.</th>
+            <th>Casos Totales</th>
+            <th>Reg. Defectos</th>
+            <th>Muestras</th>
+            <th>Consultas</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="14" class="empty-state">Configura las credenciales para cargar datos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+const TABLE_OT = 'Órdenes de Trabajo';
+const TABLE_REG_DEF = 'Registro Defectos';
+const TABLE_DEF_MUESTRAS = 'Defectos en Muestras';
+
+let API_TOKEN = localStorage.getItem('kf_token') || '';
+let BASE_ID = localStorage.getItem('kf_base') || '';
+
+let allRecords = [];
+let filteredRecords = [];
+let currentView = 'semana';
+let currentWeekOffset = 0;
+let chartCasos = null;
+let chartMuestras = null;
+
+// ─── MODAL ────────────────────────────────────────────────
+function openModal() { document.getElementById('configModal').classList.add('open'); }
+function closeModal() { document.getElementById('configModal').classList.remove('open'); }
+
+function saveConfig() {
+  API_TOKEN = document.getElementById('apiTokenInput').value.trim();
+  BASE_ID = document.getElementById('baseIdInput').value.trim();
+  if (!API_TOKEN || !BASE_ID) { alert('Por favor ingresa ambos campos.'); return; }
+  localStorage.setItem('kf_token', API_TOKEN);
+  localStorage.setItem('kf_base', BASE_ID);
+  closeModal();
+  loadAll();
+}
+
+// Pre-fill if saved
+if (API_TOKEN) document.getElementById('apiTokenInput').value = API_TOKEN;
+if (BASE_ID) document.getElementById('baseIdInput').value = BASE_ID;
+
+// ─── AIRTABLE API ─────────────────────────────────────────
+async function fetchTable(tableName, filterFormula = '') {
+  const base = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(tableName)}`;
+  let url = base + '?pageSize=100';
+  if (filterFormula) url += `&filterByFormula=${encodeURIComponent(filterFormula)}`;
+
+  let records = [];
+  let offset = null;
+
+  do {
+    const pageUrl = offset ? url + `&offset=${offset}` : url;
+    const res = await fetch(pageUrl, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` }
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+    records = records.concat(data.records);
+    offset = data.offset;
+  } while (offset);
+
+  return records;
+}
+
+// ─── LOAD ALL ─────────────────────────────────────────────
+async function loadAll() {
+  if (!API_TOKEN || !BASE_ID) { openModal(); return; }
+
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="display:inline-block;width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:6px;"></span>Cargando...';
+  document.getElementById('statusText').textContent = 'Conectando con Airtable...';
+
+  try {
+    const records = await fetchTable(TABLE_OT);
+    allRecords = records;
+    populateFilterOptions(records);
+    applyFilters();
+
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = 'Actualizado ' + now.toLocaleTimeString('es-GT', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('statusText').innerHTML = `<strong>${records.length}</strong> órdenes de trabajo cargadas desde Airtable`;
+  } catch(e) {
+    document.getElementById('statusText').textContent = '⚠ Error: ' + e.message;
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>↻</span> Actualizar';
+}
+
+// ─── FILTERS ──────────────────────────────────────────────
+function populateFilterOptions(records) {
+  const tecnicas = [...new Set(records.map(r => r.fields['Técnica']).filter(Boolean))].sort();
+  const clientes = [...new Set(records.map(r => r.fields['Nombre Cliente']).filter(Boolean))].sort();
+
+  const selTec = document.getElementById('filterTecnica');
+  const selCli = document.getElementById('filterCliente');
+
+  selTec.innerHTML = '<option value="">Todas</option>' + tecnicas.map(t => `<option value="${t}">${t}</option>`).join('');
+  selCli.innerHTML = '<option value="">Todos</option>' + clientes.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function getWeekRange(offset = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return { from: monday, to: sunday };
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('es-GT', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function setView(v) {
+  currentView = v;
+  ['btnSemana','btnConsolidado','btnPersonalizado'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(v === 'semana' ? 'btnSemana' : v === 'consolidado' ? 'btnConsolidado' : 'btnPersonalizado').classList.add('active');
+
+  document.getElementById('weekNav').style.display = v === 'semana' ? 'flex' : 'none';
+  document.getElementById('dateRange').style.display = v === 'personalizado' ? 'flex' : 'none';
+
+  if (v === 'semana') { currentWeekOffset = 0; }
+  applyFilters();
+}
+
+function prevWeek() { currentWeekOffset--; applyFilters(); }
+function nextWeek() { currentWeekOffset++; applyFilters(); }
+
+function applyDateFilter() { applyFilters(); }
+function clearFilters() {
+  document.getElementById('filterTecnica').value = '';
+  document.getElementById('filterCliente').value = '';
+  currentWeekOffset = 0;
+  applyFilters();
+}
+
+function applyFilters() {
+  let records = [...allRecords];
+
+  // Date filter
+  if (currentView === 'semana') {
+    const { from, to } = getWeekRange(currentWeekOffset);
+    records = records.filter(r => {
+      const f = r.fields['Fecha'];
+      if (!f) return false;
+      const d = new Date(f);
+      return d >= from && d <= to;
+    });
+    document.getElementById('periodDisplay').textContent = `${formatDate(from)} – ${formatDate(to)}`;
+  } else if (currentView === 'consolidado') {
+    document.getElementById('periodDisplay').textContent = 'Todo el historial';
+  } else {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    if (from) records = records.filter(r => r.fields['Fecha'] && r.fields['Fecha'] >= from);
+    if (to) records = records.filter(r => r.fields['Fecha'] && r.fields['Fecha'] <= to);
+  }
+
+  // Técnica
+  const tec = document.getElementById('filterTecnica').value;
+  if (tec) records = records.filter(r => r.fields['Técnica'] === tec);
+
+  // Cliente
+  const cli = document.getElementById('filterCliente').value;
+  if (cli) records = records.filter(r => r.fields['Nombre Cliente'] === cli);
+
+  filteredRecords = records;
+  renderDashboard(records);
+}
+
+// ─── RENDER ───────────────────────────────────────────────
+function renderDashboard(records) {
+  renderKPIs(records);
+  renderChartCasos(records);
+  renderChartMuestras(records);
+  renderDefectBars(records);
+  renderInsights(records);
+  renderTable(records);
+}
+
+function val(r, field) {
+  const v = r.fields[field];
+  return (v === undefined || v === null) ? 0 : (typeof v === 'number' ? v : (parseFloat(v) || 0));
+}
+
+function renderKPIs(records) {
+  const totalCasos = records.reduce((s,r) => s + val(r,'Casos Totales'), 0);
+  const totalOT = records.length;
+  const totalDefectos = records.reduce((s,r) => s + val(r,'Cantidad Defectos Totales'), 0);
+  const confirmados = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow Confirmados'), 0);
+  const noConfirmados = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow No Confirmados'), 0);
+
+  const cantOT = records.reduce((s,r) => s + val(r,'Cantidad OT'), 0);
+  const pctDef = cantOT > 0 ? ((totalDefectos / cantOT) * 100).toFixed(2) : 0;
+
+  document.getElementById('kpiCasos').textContent = totalCasos;
+  document.getElementById('kpiCasosSub').textContent = `${records.reduce((s,r)=>s+val(r,'Casos Registro Defectos'),0)} reg. defectos · ${records.reduce((s,r)=>s+val(r,'Casos Consultas'),0)} consultas`;
+  document.getElementById('kpiOT').textContent = totalOT;
+  document.getElementById('kpiOTSub').textContent = `${cantOT.toLocaleString()} prendas en total`;
+  document.getElementById('kpiDefPct').textContent = pctDef + '%';
+  document.getElementById('kpiDefPctSub').textContent = pctDef < 1 ? 'Dentro del rango aceptable' : 'Revisar tendencia';
+  document.getElementById('kpiConfirmados').textContent = confirmados;
+  document.getElementById('kpiConfirmadosSub').textContent = `${noConfirmados} no confirmados`;
+  document.getElementById('kpiTotalDef').textContent = totalDefectos;
+  document.getElementById('kpiTotalDefSub').textContent = `En ${cantOT.toLocaleString()} prendas`;
+}
+
+function renderChartCasos(records) {
+  const ctx = document.getElementById('chartCasos').getContext('2d');
+
+  const regDef = records.reduce((s,r) => s + val(r,'Casos Registro Defectos'), 0);
+  const consultas = records.reduce((s,r) => s + val(r,'Casos Consultas'), 0);
+  const muestras = records.reduce((s,r) => s + val(r,'Casos Muestras'), 0);
+
+  if (chartCasos) chartCasos.destroy();
+  chartCasos = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Registro Defectos', 'Consultas', 'Muestras'],
+      datasets: [{
+        data: [regDef, consultas, muestras],
+        backgroundColor: ['#E8541A', '#1D4ED8', '#15803D'],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'DM Sans', size: 11 } }, grid: { color: '#E0DDD7' } },
+        x: { ticks: { font: { family: 'DM Sans', size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderChartMuestras(records) {
+  const ctx = document.getElementById('chartMuestras').getContext('2d');
+  const conf = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow Confirmados'), 0);
+  const noConf = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow No Confirmados'), 0);
+
+  if (chartMuestras) chartMuestras.destroy();
+
+  if (conf === 0 && noConf === 0) {
+    chartMuestras = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['Sin datos'], datasets: [{ data: [1], backgroundColor: ['#E0DDD7'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    return;
+  }
+
+  chartMuestras = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Confirmado', 'No Confirmado'],
+      datasets: [{
+        data: [conf, noConf],
+        backgroundColor: ['#1D4ED8', '#DC2626'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, padding: 16 } }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+function renderDefectBars(records) {
+  const container = document.getElementById('defectBars');
+
+  // Count by field 'Tipo de Defecto Detectado' from Registro Defectos
+  // Since we have OT data, use 'Cantidad Defectos Totales' as proxy and show per técnica
+  const defByTecnica = {};
+  records.forEach(r => {
+    const tec = r.fields['Técnica'] || 'Sin técnica';
+    const def = val(r, 'Cantidad Defectos Totales');
+    defByTecnica[tec] = (defByTecnica[tec] || 0) + def;
+  });
+
+  const total = Object.values(defByTecnica).reduce((s,v) => s+v, 0);
+
+  if (total === 0) {
+    container.innerHTML = '<div class="empty-state">No hay defectos registrados en este período</div>';
+    return;
+  }
+
+  const sorted = Object.entries(defByTecnica).sort((a,b) => b[1]-a[1]);
+  const colors = ['#E8541A','#1D4ED8','#15803D','#B45309','#7C3AED'];
+
+  container.innerHTML = sorted.map(([label, count], i) => {
+    const pct = total > 0 ? ((count/total)*100).toFixed(1) : 0;
+    const color = colors[i % colors.length];
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-size:12px;font-weight:500;">${label}</span>
+          <span style="font-size:11px;font-family:var(--mono);color:var(--muted);">${count} · ${pct}%</span>
+        </div>
+        <div class="defect-bar-wrap">
+          <div class="defect-bar-bg">
+            <div class="defect-bar-fill" style="width:${pct}%;background:${color};"></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderInsights(records) {
+  const total = records.length;
+  if (total === 0) {
+    document.getElementById('insightCaso').textContent = 'No hay datos en este período.';
+    document.getElementById('insightDefecto').textContent = 'No hay datos en este período.';
+    document.getElementById('insightPct').textContent = 'No hay datos en este período.';
+    return;
+  }
+
+  // Tipo más frecuente
+  const byTipo = { 'Registro Defectos': 0, 'Consultas': 0, 'Muestras': 0 };
+  records.forEach(r => {
+    byTipo['Registro Defectos'] += val(r,'Casos Registro Defectos');
+    byTipo['Consultas'] += val(r,'Casos Consultas');
+    byTipo['Muestras'] += val(r,'Casos Muestras');
+  });
+  const topTipo = Object.entries(byTipo).sort((a,b)=>b[1]-a[1])[0];
+  const totalCasos = Object.values(byTipo).reduce((s,v)=>s+v,0);
+  const pctTipo = totalCasos > 0 ? ((topTipo[1]/totalCasos)*100).toFixed(1) : 0;
+  document.getElementById('insightCaso').textContent = `"${topTipo[0]}" es el tipo de caso más frecuente con ${topTipo[1]} registros (${pctTipo}% del total).`;
+
+  // Técnica con más defectos
+  const defByTec = {};
+  records.forEach(r => {
+    const tec = r.fields['Técnica'] || 'Sin técnica';
+    defByTec[tec] = (defByTec[tec] || 0) + val(r,'Cantidad Defectos Totales');
+  });
+  const sortedDef = Object.entries(defByTec).sort((a,b)=>b[1]-a[1]);
+  const totalDef = sortedDef.reduce((s,e)=>s+e[1],0);
+  if (sortedDef.length > 0 && totalDef > 0) {
+    const top = sortedDef[0];
+    document.getElementById('insightDefecto').textContent = `La técnica con más defectos es ${top[0]} con ${top[1]} defectos (${((top[1]/totalDef)*100).toFixed(1)}% del total).`;
+  } else {
+    document.getElementById('insightDefecto').textContent = 'No se detectaron defectos en este período. ✓';
+  }
+
+  // % defectos
+  const cantOT = records.reduce((s,r)=>s+val(r,'Cantidad OT'),0);
+  const pctDef = cantOT > 0 ? ((totalDef / cantOT) * 100).toFixed(2) : 0;
+  const nivel = pctDef < 1 ? 'dentro de rangos aceptables' : pctDef < 3 ? 'en nivel de alerta' : 'por encima del umbral crítico';
+  document.getElementById('insightPct').textContent = `El ${pctDef}% de las órdenes de trabajo presentan defectos. El nivel está ${nivel}.`;
+}
+
+function renderTable(records) {
+  document.getElementById('tableCount').textContent = `${records.length} registros`;
+  const tbody = document.getElementById('tableBody');
+
+  if (records.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No hay órdenes de trabajo en este período</td></tr>';
+    return;
+  }
+
+  const sorted = [...records].sort((a,b) => {
+    const da = a.fields['Fecha'] || '';
+    const db = b.fields['Fecha'] || '';
+    return db.localeCompare(da);
+  });
+
+  tbody.innerHTML = sorted.map(r => {
+    const f = r.fields;
+    const pct = f['% Defectos'];
+    const pctStr = pct !== undefined ? (typeof pct === 'number' ? (pct*100).toFixed(2) : pct) + '%' : '—';
+    const pctNum = parseFloat(pctStr) || 0;
+    const pctClass = pctNum === 0 ? 'badge-green' : pctNum < 1 ? 'badge-amber' : 'badge-red';
+
+    return `<tr>
+      <td><span class="td-ot">${f['Orden de Trabajo'] || '—'}</span></td>
+      <td>${f['Fecha'] ? new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+      <td>${f['Nombre Cliente'] || '—'}</td>
+      <td>${f['Técnica'] || '—'}</td>
+      <td>${f['Producto'] || '—'}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${(f['Cantidad OT']||0).toLocaleString()}</td>
+      <td><span class="badge ${pctClass}">${pctStr}</span></td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Cantidad Defectos Totales']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Defecto Detectado por KnowFlow Confirmados']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Defecto Detectado por KnowFlow No Confirmados']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Casos Totales']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Casos Registro Defectos']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Casos Muestras']||0}</td>
+      <td style="font-family:var(--mono);font-size:12px;">${f['Casos Consultas']||0}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+if (API_TOKEN && BASE_ID) {
+  closeModal();
+  loadAll();
+} else {
+  document.getElementById('statusText').textContent = 'Configura las credenciales para comenzar';
+  document.getElementById('periodDisplay').textContent = 'Sin datos';
+}
+</script>
+</body>
+</html>
