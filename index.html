@@ -380,11 +380,13 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
 <div style="padding:20px 28px;max-width:1400px;margin:0 auto;">
   <div style="margin-bottom:14px;">
     <div class="card">
-      <div class="ch">
-        <span class="ct">Todos los tipos de defecto</span>
-        <span class="ctag" id="allDefTag">cargando...</span>
+      <div class="ch"><span class="ct">Defectos por fuente</span><span class="ctag">3 fuentes</span></div>
+      <div class="cb">
+        <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+          <div style="position:relative;height:200px;width:200px;flex-shrink:0;"><canvas id="cFuentes"></canvas></div>
+          <div id="fuentesStats" style="display:flex;flex-direction:column;gap:10px;flex:1;min-width:200px;"></div>
+        </div>
       </div>
-      <div class="cb" id="allDefBars"><div class="empty-state">Cargando...</div></div>
     </div>
   </div>
   <div class="card">
@@ -414,7 +416,7 @@ var sortCol = 'fecha', sortDir = -1;
 var defSrc = 'all';
 var defSortCol = 'total'; var defSortDir = -1;
 var openRow = null;
-var cTend = null, cKF = null;
+var cTend = null, cKF = null, cFuentes = null;
 
 // \u2500\u2500 AUTH \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function checkLogin(){
@@ -973,11 +975,27 @@ function renderDefectos(){
   document.getElementById('allDefTag').textContent=sorted.length+' tipos \u00B7 '+total+' ocurrencias';
   document.getElementById('defTblTag').textContent=sorted.length+' tipos';
 
-  // Bars - all
-  renderBars('allDefBars', counts, null);
-
   // Fuentes doughnut
-
+  var fCtx=document.getElementById('cFuentes').getContext('2d');
+  if(cFuentes) cFuentes.destroy();
+  cFuentes=new Chart(fCtx,{type:'doughnut',data:{
+    labels:['Reg. Defectos','Muestras','Consultas'],
+    datasets:[{data:[srcCounts.reg,srcCounts.mue,srcCounts.con],backgroundColor:['#E8541A','#1D4ED8','#15803D'],borderWidth:0,hoverOffset:5}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}});
+  var fStats=document.getElementById('fuentesStats');
+  if(fStats){
+    var fTotal=srcCounts.reg+srcCounts.mue+srcCounts.con;
+    var fData=[['Reg. Defectos',srcCounts.reg,'#E8541A'],['Muestras',srcCounts.mue,'#1D4ED8'],['Consultas',srcCounts.con,'#15803D']];
+    fStats.innerHTML=fData.map(function(d){
+      var pct=fTotal>0?((d[1]/fTotal)*100).toFixed(1)+'%':'0%';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;">'+
+        '<div style="width:10px;height:10px;border-radius:2px;background:'+d[2]+';flex-shrink:0;"></div>'+
+        '<div style="flex:1;font-size:12px;font-weight:500;">'+d[0]+'</div>'+
+        '<div style="font-size:18px;font-weight:600;color:'+d[2]+'">'+d[1]+'</div>'+
+        '<div style="font-size:11px;font-family:var(--mono);color:var(--muted);min-width:36px;text-align:right;">'+pct+'</div>'+
+      '</div>';
+    }).join('');
+  }
 
   // Table
   var tbody=document.getElementById('defTblBody');
