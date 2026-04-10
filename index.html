@@ -754,7 +754,7 @@ function renderTable(){
   var prod=document.getElementById('tblProducto').value;
   var df=document.getElementById('tblDateFrom').value;
   var dt=document.getElementById('tblDateTo').value;
-  if(tec) recs=recs.filter(function(r){return r.fields['Tecnica']===tec;});
+  if(tec) recs=recs.filter(function(r){return r.fields['T\u00E9cnica']===tec;});
   if(cli) recs=recs.filter(function(r){return r.fields['Nombre Cliente']===cli;});
   if(prod) recs=recs.filter(function(r){return r.fields['Producto']===prod;});
   if(df) recs=recs.filter(function(r){return r.fields['Fecha']&&r.fields['Fecha']>=df;});
@@ -765,7 +765,7 @@ function renderTable(){
     if(sortCol==='pctNum'){av=fv(a,'% Defectos');bv=fv(b,'% Defectos');}
     else if(sortCol==='conf'){av=fv(a,'Defecto Detectado por KnowFlow Confirmados');bv=fv(b,'Defecto Detectado por KnowFlow Confirmados');}
     else if(sortCol==='noConf'){av=fv(a,'Defecto Detectado por KnowFlow No Confirmados');bv=fv(b,'Defecto Detectado por KnowFlow No Confirmados');}
-    else if(sortCol==='Tecnica'){av=a.fields['Tecnica']||'';bv=b.fields['Tecnica']||'';}
+    else if(sortCol==='Tecnica'){av=a.fields['T\u00E9cnica']||'';bv=b.fields['T\u00E9cnica']||'';}
     else{av=a.fields[sortCol]||0;bv=b.fields[sortCol]||0;}
     if(av<bv) return -sortDir; if(av>bv) return sortDir; return 0;
   });
@@ -773,11 +773,14 @@ function renderTable(){
   document.getElementById('tableCount').textContent=recs.length+' registros';
   document.getElementById('tblCount').textContent=recs.length+' registros';
   var tbody=document.getElementById('tableBody');
-  if(!recs.length){tbody.innerHTML='<tr><td colspan="11" class="empty-state">Sin resultados con los filtros aplicados</td></tr>';return;}
-  tbody.innerHTML=recs.map(function(r){
+  if(!recs.length){tbody.innerHTML='<tr><td colspan=11 class=empty-state>Sin resultados</td></tr>';return;}
+
+  var rows = [];
+  for(var i=0; i<recs.length; i++){
+    var r=recs[i];
     var f=r.fields;
     var pct=f['% Defectos'];
-    var pctStr=pct!==undefined?(typeof pct==='number'?(pct*100).toFixed(2):pct)+'%':'';
+    var pctStr=pct!==undefined?(typeof pct==='number'?(pct*100).toFixed(2):pct)+'%':'0%';
     var pctNum=parseFloat(pctStr)||0;
     var cls=pctNum===0?'badge-green':pctNum<1?'badge-amber':'badge-red';
     var defTot=f['Cantidad Defectos Totales']||0;
@@ -786,26 +789,45 @@ function renderTable(){
     var fecha=f['Fecha']?new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}):'';
     var conf=f['Defecto Detectado por KnowFlow Confirmados']||0;
     var noConf=f['Defecto Detectado por KnowFlow No Confirmados']||0;
-    return '<tr onclick="toggleRow(''+r.id+'')">' +
-      '<td><span class="td-ot">'+(f['Orden de Trabajo']||'\u2014')+'</span></td>'+
-      '<td>'+fecha+'</td>'+
-      '<td>'+(f['Nombre Cliente']||'\u2014')+'</td>'+
-      '<td>'+(f['Tecnica']||'\u2014')+'</td>'+
-      '<td>'+(f['Producto']||'\u2014')+'</td>'+
-      '<td style="font-family:var(--mono);font-size:11px;">'+cantOTr.toLocaleString()+'</td>'+
-      '<td><span class="badge '+cls+'">'+pctStr+'</span></td>'+
-      '<td style="font-family:var(--mono);font-size:11px;">'+afect+'</td>'+
-      '<td style="font-family:var(--mono);font-size:11px;">'+conf+'</td>'+
-      '<td style="font-family:var(--mono);font-size:11px;">'+noConf+'</td>'+
-      '<td style="font-family:var(--mono);font-size:11px;">'+(f['Casos Totales']||0)+'</td>'+
-    '</tr>'+
-    '<tr class="row-detail" id="detail-'+r.id+'" style="display:none;"><td colspan="11"><div class="detail-grid">'+
-      '<div class="detail-item"><div class="detail-label">Reg. Defectos</div><div class="detail-value">'+(f['Casos Registro Defectos']||0)+'</div></div>'+
-      '<div class="detail-item"><div class="detail-label">Muestras</div><div class="detail-value">'+(f['Casos Muestras']||0)+'</div></div>'+
-      '<div class="detail-item"><div class="detail-label">Consultas</div><div class="detail-value">'+(f['Casos Consultas']||0)+'</div></div>'+
-      '<div class="detail-item"><div class="detail-label">Confirmados KF</div><div class="detail-value">'+conf+'</div></div>'+
-    '</div></td></tr>';
-  }).join('');
+    var ot=f['Orden de Trabajo']||'';
+    var cli2=f['Nombre Cliente']||'';
+    var tec2=f['T\u00E9cnica']||'';
+    var prod2=f['Producto']||'';
+    var casos=f['Casos Totales']||0;
+    var rd=f['Casos Registro Defectos']||0;
+    var mm=f['Casos Muestras']||0;
+    var cc=f['Casos Consultas']||0;
+
+    var row = document.createElement('tr');
+    row.onclick = (function(rid){ return function(){ toggleRow(rid); }; })(r.id);
+    row.innerHTML = [
+      '<td><span class=td-ot>'+ot+'</span></td>',
+      '<td>'+fecha+'</td>',
+      '<td>'+cli2+'</td>',
+      '<td>'+tec2+'</td>',
+      '<td>'+prod2+'</td>',
+      '<td style="font-family:var(--mono);font-size:11px">'+cantOTr.toLocaleString()+'</td>',
+      '<td><span class="badge '+cls+'">'+pctStr+'</span></td>',
+      '<td style="font-family:var(--mono);font-size:11px">'+afect+'</td>',
+      '<td style="font-family:var(--mono);font-size:11px">'+conf+'</td>',
+      '<td style="font-family:var(--mono);font-size:11px">'+noConf+'</td>',
+      '<td style="font-family:var(--mono);font-size:11px">'+casos+'</td>'
+    ].join('');
+    rows.push(row.outerHTML);
+
+    var detail = document.createElement('tr');
+    detail.className = 'row-detail';
+    detail.id = 'detail-'+r.id;
+    detail.style.display = 'none';
+    detail.innerHTML = '<td colspan=11><div class=detail-grid>'+
+      '<div class=detail-item><div class=detail-label>Reg. Defectos</div><div class=detail-value>'+rd+'</div></div>'+
+      '<div class=detail-item><div class=detail-label>Muestras</div><div class=detail-value>'+mm+'</div></div>'+
+      '<div class=detail-item><div class=detail-label>Consultas</div><div class=detail-value>'+cc+'</div></div>'+
+      '<div class=detail-item><div class=detail-label>Confirmados KF</div><div class=detail-value>'+conf+'</div></div>'+
+    '</div></td>';
+    rows.push(detail.outerHTML);
+  }
+  tbody.innerHTML = rows.join('');
 }
 
 function toggleRow(id){
