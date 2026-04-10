@@ -8,119 +8,148 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F5F3EF;
-    --surface: #FFFFFF;
-    --surface2: #EEECE8;
-    --border: #E0DDD7;
-    --text: #1A1916;
-    --muted: #7A7771;
-    --orange: #E8541A;
-    --orange-light: #FEF0EA;
-    --orange-mid: #F5855A;
-    --blue: #1D4ED8;
-    --blue-light: #EEF2FF;
-    --green: #15803D;
-    --green-light: #F0FDF4;
-    --amber: #B45309;
-    --amber-light: #FFFBEB;
-    --red: #DC2626;
-    --red-light: #FEF2F2;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --radius: 10px;
-    --font: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
+    --bg:#F5F3EF;--surface:#FFFFFF;--surface2:#EEECE8;--border:#E0DDD7;
+    --text:#1A1916;--muted:#7A7771;--orange:#E8541A;--orange-light:#FEF0EA;
+    --blue:#1D4ED8;--blue-light:#EEF2FF;--green:#15803D;--green-light:#F0FDF4;
+    --amber:#B45309;--amber-light:#FFFBEB;--red:#DC2626;--red-light:#FEF2F2;
+    --shadow:0 1px 3px rgba(0,0,0,0.06);--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+    --radius:10px;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
 
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
-  .header-left { display: flex; align-items: center; gap: 16px; }
-  .logo-kf { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
-  .logo-kf span { color: var(--orange); }
-  .divider-v { width: 1px; height: 24px; background: var(--border); }
-  .client-badge { display: flex; align-items: center; gap: 8px; background: var(--orange-light); border: 1px solid #F5C4AD; border-radius: 20px; padding: 4px 12px 4px 8px; font-size: 13px; font-weight: 500; color: var(--orange); }
-  .client-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .last-update { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  .btn-refresh { background: var(--orange); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
-  .btn-refresh:hover { background: #C8431A; }
-  .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* LOGIN */
+  .login-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+  .login-overlay.hidden{display:none;}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.1);text-align:center;}
+  .login-logo{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:6px;}
+  .login-logo span{color:var(--orange);}
+  .login-subtitle{font-size:13px;color:var(--muted);margin-bottom:24px;}
+  .login-client{display:inline-flex;align-items:center;gap:8px;background:var(--orange-light);border:1px solid #F5C4AD;border-radius:20px;padding:4px 14px 4px 10px;font-size:12px;font-weight:500;color:var(--orange);margin-bottom:28px;}
+  .login-client-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite;}
+  .login-field{text-align:left;margin-bottom:16px;}
+  .login-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px;}
+  .login-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color 0.15s;letter-spacing:3px;}
+  .login-input:focus{border-color:var(--orange);}
+  .login-input.error{border-color:var(--red);animation:shake 0.3s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .login-btn{width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s;margin-top:8px;}
+  .login-btn:hover{background:#C8431A;}
+  .login-error{font-size:12px;color:var(--red);margin-top:10px;min-height:18px;}
 
-  .filters-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .filter-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
-  .filter-group { display: flex; align-items: center; gap: 8px; }
-  select, input[type="date"] { border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: var(--font); font-size: 13px; color: var(--text); background: var(--bg); cursor: pointer; outline: none; transition: border-color 0.15s; }
-  select:focus, input[type="date"]:focus { border-color: var(--orange); }
-  .filter-sep { color: var(--muted); font-size: 12px; }
-  .btn-week { border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-family: var(--font); font-size: 13px; color: var(--muted); background: var(--bg); cursor: pointer; transition: all 0.15s; }
-  .btn-week:hover, .btn-week.active { background: var(--orange); color: white; border-color: var(--orange); }
-  .filter-clear { font-size: 12px; color: var(--orange); cursor: pointer; text-decoration: underline; background: none; border: none; font-family: var(--font); }
+  /* HEADER */
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .header-left{display:flex;align-items:center;gap:16px;}
+  .logo-kf{font-size:18px;font-weight:600;letter-spacing:-0.5px;}
+  .logo-kf span{color:var(--orange);}
+  .divider-v{width:1px;height:24px;background:var(--border);}
+  .client-badge{display:flex;align-items:center;gap:8px;background:var(--orange-light);border:1px solid #F5C4AD;border-radius:20px;padding:4px 12px 4px 8px;font-size:13px;font-weight:500;color:var(--orange);}
+  .client-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .last-update{font-size:12px;color:var(--muted);font-family:var(--mono);}
+  .btn-refresh{background:var(--orange);color:white;border:none;border-radius:8px;padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;}
+  .btn-refresh:hover{background:#C8431A;}
+  .btn-refresh:disabled{opacity:0.5;cursor:not-allowed;}
 
-  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
-  .status-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--muted); }
-  .status-bar strong { color: var(--text); }
+  /* FILTERS */
+  .filters-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .filter-label{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px;}
+  .filter-group{display:flex;align-items:center;gap:8px;}
+  select,input[type="date"]{border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);cursor:pointer;outline:none;transition:border-color 0.15s;}
+  select:focus,input[type="date"]:focus{border-color:var(--orange);}
+  .filter-sep{color:var(--muted);font-size:12px;}
+  .btn-week{border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--font);font-size:13px;color:var(--muted);background:var(--bg);cursor:pointer;transition:all 0.15s;}
+  .btn-week:hover,.btn-week.active{background:var(--orange);color:white;border-color:var(--orange);}
+  .filter-clear{font-size:12px;color:var(--orange);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:var(--font);}
 
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s; }
-  .kpi-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .kpi-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 8px; }
-  .kpi-value { font-size: 32px; font-weight: 600; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
-  .kpi-sub { font-size: 12px; color: var(--muted); }
-  .kpi-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 12px; }
-  .kpi-card.orange .kpi-value { color: var(--orange); }
-  .kpi-card.blue .kpi-value { color: var(--blue); }
-  .kpi-card.green .kpi-value { color: var(--green); }
-  .kpi-card.amber .kpi-value { color: var(--amber); }
-  .kpi-card.red .kpi-value { color: var(--red); }
-  .kpi-card.orange .kpi-icon { background: var(--orange-light); }
-  .kpi-card.blue .kpi-icon { background: var(--blue-light); }
-  .kpi-card.green .kpi-icon { background: var(--green-light); }
-  .kpi-card.amber .kpi-icon { background: var(--amber-light); }
-  .kpi-card.red .kpi-icon { background: var(--red-light); }
+  /* MAIN */
+  .main{padding:28px 32px;max-width:1400px;margin:0 auto;}
+  .status-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:13px;color:var(--muted);}
+  .status-bar strong{color:var(--text);}
 
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .card-header { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .card-tag { font-size: 11px; font-family: var(--mono); color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 4px; }
-  .card-body { padding: 20px 24px; }
-  .chart-wrap { position: relative; height: 220px; }
+  /* KPIs */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);transition:transform 0.15s,box-shadow 0.15s;}
+  .kpi-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+  .kpi-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:8px;}
+  .kpi-value{font-size:32px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+  .kpi-sub{font-size:12px;color:var(--muted);}
+  .kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px;}
+  .kpi-card.orange .kpi-value{color:var(--orange);}
+  .kpi-card.blue .kpi-value{color:var(--blue);}
+  .kpi-card.green .kpi-value{color:var(--green);}
+  .kpi-card.amber .kpi-value{color:var(--amber);}
+  .kpi-card.red .kpi-value{color:var(--red);}
+  .kpi-card.orange .kpi-icon{background:var(--orange-light);}
+  .kpi-card.blue .kpi-icon{background:var(--blue-light);}
+  .kpi-card.green .kpi-icon{background:var(--green-light);}
+  .kpi-card.amber .kpi-icon{background:var(--amber-light);}
+  .kpi-card.red .kpi-icon{background:var(--red-light);}
 
-  .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .insight-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
-  .insight-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .insight-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
-  .insight-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+  /* CARDS */
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+  @media(max-width:900px){.charts-grid{grid-template-columns:1fr;}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .card-header{padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:13px;font-weight:600;color:var(--text);}
+  .card-tag{font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:4px;}
+  .card-body{padding:20px 24px;}
+  .chart-wrap{position:relative;height:220px;}
 
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border); white-space: nowrap; }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody tr:last-child { border-bottom: none; }
-  tbody td { padding: 12px 16px; color: var(--text); white-space: nowrap; }
-  .td-ot { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--orange); background: var(--orange-light); padding: 2px 8px; border-radius: 4px; display: inline-block; }
-  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-  .badge-green { background: var(--green-light); color: var(--green); }
-  .badge-red { background: var(--red-light); color: var(--red); }
-  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  /* INSIGHTS */
+  .insights-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+  .insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+  .insight-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .insight-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);}
+  .insight-text{font-size:13px;color:var(--text);line-height:1.6;}
 
-  .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
-  .period-display { font-size: 13px; color: var(--text); font-weight: 500; min-width: 200px; text-align: center; }
-  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-  .defect-bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-  .defect-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  /* TABLE */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+  tbody tr:hover{background:var(--surface2);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody td{padding:12px 16px;color:var(--text);white-space:nowrap;}
+  .td-ot{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--orange);background:var(--orange-light);padding:2px 8px;border-radius:4px;display:inline-block;}
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+  .badge-green{background:var(--green-light);color:var(--green);}
+  .badge-red{background:var(--red-light);color:var(--red);}
+  .badge-amber{background:var(--amber-light);color:var(--amber);}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+  .period-display{font-size:13px;color:var(--text);font-weight:500;min-width:200px;text-align:center;}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);}
+  .legend-item{display:flex;align-items:center;gap:6px;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;}
+  .defect-bar-bg{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+  .defect-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">Know<span>Flow</span></div>
+    <div class="login-subtitle">Dashboard de Control de Calidad</div>
+    <div class="login-client">
+      <div class="login-client-dot"></div>
+      Serigrafía La Gringa
+    </div>
+    <div class="login-field">
+      <label>Contraseña de acceso</label>
+      <input class="login-input" id="loginInput" type="password" placeholder="••••••••••••"
+        onkeydown="if(event.key==='Enter') checkLogin()" autofocus />
+    </div>
+    <button class="login-btn" onclick="checkLogin()">Ingresar al dashboard</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
 <header class="header">
   <div class="header-left">
     <div class="logo-kf">Know<span>Flow</span></div>
@@ -134,11 +163,12 @@
   <div class="header-right">
     <span class="last-update" id="lastUpdate">—</span>
     <button class="btn-refresh" id="refreshBtn" onclick="loadAll()">
-      <span>↻</span> Actualizar
+      <span>&#8635;</span> Actualizar
     </button>
   </div>
 </header>
 
+<!-- FILTERS -->
 <div class="filters-bar">
   <span class="filter-label">Vista</span>
   <div class="filter-group">
@@ -148,13 +178,13 @@
   </div>
   <div class="divider-v"></div>
   <div class="filter-group" id="weekNav">
-    <button class="btn-week" onclick="prevWeek()">‹</button>
+    <button class="btn-week" onclick="prevWeek()">&#8249;</button>
     <span class="period-display" id="periodDisplay">Cargando...</span>
-    <button class="btn-week" onclick="nextWeek()">›</button>
+    <button class="btn-week" onclick="nextWeek()">&#8250;</button>
   </div>
   <div class="filter-group" id="dateRange" style="display:none;">
     <input type="date" id="dateFrom" onchange="applyFilters()" />
-    <span class="filter-sep">→</span>
+    <span class="filter-sep">&#8594;</span>
     <input type="date" id="dateTo" onchange="applyFilters()" />
   </div>
   <div class="filter-group">
@@ -165,18 +195,19 @@
     <span class="filter-label">Cliente</span>
     <select id="filterCliente" onchange="applyFilters()"><option value="">Todos</option></select>
   </div>
-  <button class="filter-clear" onclick="clearFilters()">✕ Limpiar</button>
+  <button class="filter-clear" onclick="clearFilters()">&#10005; Limpiar</button>
 </div>
 
+<!-- MAIN -->
 <main class="main">
   <div class="status-bar"><span id="statusText">Cargando datos...</span></div>
 
   <div class="kpi-grid">
-    <div class="kpi-card orange"><div class="kpi-icon">📋</div><div class="kpi-label">Total de Casos</div><div class="kpi-value" id="kpiCasos">—</div><div class="kpi-sub" id="kpiCasosSub">—</div></div>
-    <div class="kpi-card blue"><div class="kpi-icon">📦</div><div class="kpi-label">Órdenes de Trabajo</div><div class="kpi-value" id="kpiOT">—</div><div class="kpi-sub" id="kpiOTSub">—</div></div>
-    <div class="kpi-card amber"><div class="kpi-icon">⚠️</div><div class="kpi-label">% Defectos por OT</div><div class="kpi-value" id="kpiDefPct">—</div><div class="kpi-sub" id="kpiDefPctSub">—</div></div>
-    <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-label">Defectos Confirmados</div><div class="kpi-value" id="kpiConfirmados">—</div><div class="kpi-sub" id="kpiConfirmadosSub">—</div></div>
-    <div class="kpi-card red"><div class="kpi-icon">🔍</div><div class="kpi-label">Total Defectos</div><div class="kpi-value" id="kpiTotalDef">—</div><div class="kpi-sub" id="kpiTotalDefSub">—</div></div>
+    <div class="kpi-card orange"><div class="kpi-icon">&#128203;</div><div class="kpi-label">Total de Casos</div><div class="kpi-value" id="kpiCasos">—</div><div class="kpi-sub" id="kpiCasosSub">—</div></div>
+    <div class="kpi-card blue"><div class="kpi-icon">&#128230;</div><div class="kpi-label">Órdenes de Trabajo</div><div class="kpi-value" id="kpiOT">—</div><div class="kpi-sub" id="kpiOTSub">—</div></div>
+    <div class="kpi-card amber"><div class="kpi-icon">&#9888;&#65039;</div><div class="kpi-label">% Defectos por OT</div><div class="kpi-value" id="kpiDefPct">—</div><div class="kpi-sub" id="kpiDefPctSub">—</div></div>
+    <div class="kpi-card green"><div class="kpi-icon">&#9989;</div><div class="kpi-label">Defectos Confirmados</div><div class="kpi-value" id="kpiConfirmados">—</div><div class="kpi-sub" id="kpiConfirmadosSub">—</div></div>
+    <div class="kpi-card red"><div class="kpi-icon">&#128269;</div><div class="kpi-label">Total Defectos</div><div class="kpi-value" id="kpiTotalDef">—</div><div class="kpi-sub" id="kpiTotalDefSub">—</div></div>
   </div>
 
   <div class="charts-grid">
@@ -202,7 +233,7 @@
   </div>
 
   <div class="card" style="margin-bottom:24px;">
-    <div class="card-header"><span class="card-title">💡 Insights y Recomendaciones</span></div>
+    <div class="card-header"><span class="card-title">&#128161; Insights y Recomendaciones</span></div>
     <div class="card-body">
       <div class="insights-grid">
         <div class="insight-card"><div class="insight-title"><div class="insight-dot"></div>Tipo de Caso más Frecuente</div><div class="insight-text" id="insightCaso">Cargando...</div></div>
@@ -213,7 +244,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><span class="card-title">📊 Detalle por Orden de Trabajo</span><span class="card-tag" id="tableCount">0 registros</span></div>
+    <div class="card-header"><span class="card-title">&#128202; Detalle por Orden de Trabajo</span><span class="card-tag" id="tableCount">0 registros</span></div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -231,6 +262,7 @@
 </main>
 
 <script>
+  const PASS = 'La.Gringa_26';
   const TABLE_OT = 'Órdenes de Trabajo';
   let allRecords = [];
   let currentView = 'semana';
@@ -238,14 +270,36 @@
   let chartCasos = null;
   let chartMuestras = null;
 
+  // LOGIN
+  function checkLogin() {
+    const input = document.getElementById('loginInput');
+    const error = document.getElementById('loginError');
+    if (input.value === PASS) {
+      sessionStorage.setItem('kf_auth', '1');
+      document.getElementById('loginOverlay').classList.add('hidden');
+      loadAll();
+    } else {
+      input.classList.add('error');
+      error.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+      input.value = '';
+      setTimeout(() => input.classList.remove('error'), 400);
+    }
+  }
+
+  // Check session
+  if (sessionStorage.getItem('kf_auth') === '1') {
+    document.getElementById('loginOverlay').classList.add('hidden');
+  }
+
+  // AIRTABLE via proxy
   async function fetchTable(tableName) {
     let records = [];
     let offset = null;
     do {
-      let url = `/api/airtable?table=${encodeURIComponent(tableName)}`;
-      if (offset) url += `&offset=${offset}`;
+      let url = '/api/airtable?table=' + encodeURIComponent(tableName);
+      if (offset) url += '&offset=' + offset;
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) throw new Error('Error ' + res.status);
       const data = await res.json();
       records = records.concat(data.records);
       offset = data.offset;
@@ -264,27 +318,27 @@
       populateFilterOptions(records);
       applyFilters();
       const now = new Date();
-      document.getElementById('lastUpdate').textContent = 'Actualizado ' + now.toLocaleTimeString('es-GT', {hour:'2-digit', minute:'2-digit'});
-      document.getElementById('statusText').innerHTML = `<strong>${records.length}</strong> órdenes de trabajo cargadas`;
+      document.getElementById('lastUpdate').textContent = 'Actualizado ' + now.toLocaleTimeString('es-GT', {hour:'2-digit',minute:'2-digit'});
+      document.getElementById('statusText').innerHTML = '<strong>' + records.length + '</strong> órdenes de trabajo cargadas';
     } catch(e) {
-      document.getElementById('statusText').textContent = '⚠ Error: ' + e.message;
+      document.getElementById('statusText').textContent = 'Error: ' + e.message;
     }
     btn.disabled = false;
-    btn.innerHTML = '<span>↻</span> Actualizar';
+    btn.innerHTML = '&#8635; Actualizar';
   }
 
   function populateFilterOptions(records) {
     const tecnicas = [...new Set(records.map(r => r.fields['Técnica']).filter(Boolean))].sort();
     const clientes = [...new Set(records.map(r => r.fields['Nombre Cliente']).filter(Boolean))].sort();
-    document.getElementById('filterTecnica').innerHTML = '<option value="">Todas</option>' + tecnicas.map(t => `<option value="${t}">${t}</option>`).join('');
-    document.getElementById('filterCliente').innerHTML = '<option value="">Todos</option>' + clientes.map(c => `<option value="${c}">${c}</option>`).join('');
+    document.getElementById('filterTecnica').innerHTML = '<option value="">Todas</option>' + tecnicas.map(t => '<option value="' + t + '">' + t + '</option>').join('');
+    document.getElementById('filterCliente').innerHTML = '<option value="">Todos</option>' + clientes.map(c => '<option value="' + c + '">' + c + '</option>').join('');
   }
 
-  function getWeekRange(offset = 0) {
+  function getWeekRange(offset) {
     const now = new Date();
     const day = now.getDay();
     const monday = new Date(now);
-    monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+    monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + (offset || 0) * 7);
     monday.setHours(0,0,0,0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
@@ -293,12 +347,12 @@
   }
 
   function formatDate(d) {
-    return d.toLocaleDateString('es-GT', { day:'2-digit', month:'short', year:'numeric' });
+    return d.toLocaleDateString('es-GT', {day:'2-digit',month:'short',year:'numeric'});
   }
 
   function setView(v) {
     currentView = v;
-    ['btnSemana','btnConsolidado','btnPersonalizado'].forEach(id => document.getElementById(id).classList.remove('active'));
+    ['btnSemana','btnConsolidado','btnPersonalizado'].forEach(function(id) { document.getElementById(id).classList.remove('active'); });
     document.getElementById(v === 'semana' ? 'btnSemana' : v === 'consolidado' ? 'btnConsolidado' : 'btnPersonalizado').classList.add('active');
     document.getElementById('weekNav').style.display = v === 'semana' ? 'flex' : 'none';
     document.getElementById('dateRange').style.display = v === 'personalizado' ? 'flex' : 'none';
@@ -311,123 +365,117 @@
   function clearFilters() { document.getElementById('filterTecnica').value = ''; document.getElementById('filterCliente').value = ''; currentWeekOffset = 0; applyFilters(); }
 
   function applyFilters() {
-    let records = [...allRecords];
+    var records = allRecords.slice();
     if (currentView === 'semana') {
-      const { from, to } = getWeekRange(currentWeekOffset);
-      records = records.filter(r => { const f = r.fields['Fecha']; if (!f) return false; const d = new Date(f); return d >= from && d <= to; });
-      document.getElementById('periodDisplay').textContent = `${formatDate(getWeekRange(currentWeekOffset).from)} – ${formatDate(getWeekRange(currentWeekOffset).to)}`;
+      var range = getWeekRange(currentWeekOffset);
+      records = records.filter(function(r) {
+        var f = r.fields['Fecha'];
+        if (!f) return false;
+        var d = new Date(f);
+        return d >= range.from && d <= range.to;
+      });
+      document.getElementById('periodDisplay').textContent = formatDate(range.from) + ' – ' + formatDate(range.to);
     } else if (currentView === 'consolidado') {
       document.getElementById('periodDisplay').textContent = 'Todo el historial';
     } else {
-      const from = document.getElementById('dateFrom').value;
-      const to = document.getElementById('dateTo').value;
-      if (from) records = records.filter(r => r.fields['Fecha'] && r.fields['Fecha'] >= from);
-      if (to) records = records.filter(r => r.fields['Fecha'] && r.fields['Fecha'] <= to);
+      var from = document.getElementById('dateFrom').value;
+      var to = document.getElementById('dateTo').value;
+      if (from) records = records.filter(function(r) { return r.fields['Fecha'] && r.fields['Fecha'] >= from; });
+      if (to) records = records.filter(function(r) { return r.fields['Fecha'] && r.fields['Fecha'] <= to; });
     }
-    const tec = document.getElementById('filterTecnica').value;
-    if (tec) records = records.filter(r => r.fields['Técnica'] === tec);
-    const cli = document.getElementById('filterCliente').value;
-    if (cli) records = records.filter(r => r.fields['Nombre Cliente'] === cli);
+    var tec = document.getElementById('filterTecnica').value;
+    if (tec) records = records.filter(function(r) { return r.fields['Técnica'] === tec; });
+    var cli = document.getElementById('filterCliente').value;
+    if (cli) records = records.filter(function(r) { return r.fields['Nombre Cliente'] === cli; });
     renderDashboard(records);
   }
 
-  function val(r, field) { const v = r.fields[field]; return (v === undefined || v === null) ? 0 : (typeof v === 'number' ? v : (parseFloat(v) || 0)); }
+  function v(r, field) {
+    var val = r.fields[field];
+    return (val === undefined || val === null) ? 0 : (typeof val === 'number' ? val : (parseFloat(val) || 0));
+  }
 
   function renderDashboard(records) {
-    // KPIs
-    const totalCasos = records.reduce((s,r) => s + val(r,'Casos Totales'), 0);
-    const totalDefectos = records.reduce((s,r) => s + val(r,'Cantidad Defectos Totales'), 0);
-    const confirmados = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow Confirmados'), 0);
-    const noConfirmados = records.reduce((s,r) => s + val(r,'Defecto Detectado por KnowFlow No Confirmados'), 0);
-    const cantOT = records.reduce((s,r) => s + val(r,'Cantidad OT'), 0);
-    const pctDef = cantOT > 0 ? ((totalDefectos / cantOT) * 100).toFixed(2) : 0;
+    var totalCasos = records.reduce(function(s,r){return s+v(r,'Casos Totales');},0);
+    var totalDefectos = records.reduce(function(s,r){return s+v(r,'Cantidad Defectos Totales');},0);
+    var confirmados = records.reduce(function(s,r){return s+v(r,'Defecto Detectado por KnowFlow Confirmados');},0);
+    var noConfirmados = records.reduce(function(s,r){return s+v(r,'Defecto Detectado por KnowFlow No Confirmados');},0);
+    var cantOT = records.reduce(function(s,r){return s+v(r,'Cantidad OT');},0);
+    var pctDef = cantOT > 0 ? ((totalDefectos / cantOT) * 100).toFixed(2) : 0;
+    var regDef = records.reduce(function(s,r){return s+v(r,'Casos Registro Defectos');},0);
+    var consultas = records.reduce(function(s,r){return s+v(r,'Casos Consultas');},0);
+    var muestras = records.reduce(function(s,r){return s+v(r,'Casos Muestras');},0);
 
     document.getElementById('kpiCasos').textContent = totalCasos;
-    document.getElementById('kpiCasosSub').textContent = `${records.reduce((s,r)=>s+val(r,'Casos Registro Defectos'),0)} reg. defectos · ${records.reduce((s,r)=>s+val(r,'Casos Consultas'),0)} consultas`;
+    document.getElementById('kpiCasosSub').textContent = regDef + ' reg. defectos · ' + consultas + ' consultas';
     document.getElementById('kpiOT').textContent = records.length;
-    document.getElementById('kpiOTSub').textContent = `${cantOT.toLocaleString()} prendas en total`;
+    document.getElementById('kpiOTSub').textContent = cantOT.toLocaleString() + ' prendas en total';
     document.getElementById('kpiDefPct').textContent = pctDef + '%';
     document.getElementById('kpiDefPctSub').textContent = pctDef < 1 ? 'Dentro del rango aceptable' : 'Revisar tendencia';
     document.getElementById('kpiConfirmados').textContent = confirmados;
-    document.getElementById('kpiConfirmadosSub').textContent = `${noConfirmados} no confirmados`;
+    document.getElementById('kpiConfirmadosSub').textContent = noConfirmados + ' no confirmados';
     document.getElementById('kpiTotalDef').textContent = totalDefectos;
-    document.getElementById('kpiTotalDefSub').textContent = `En ${cantOT.toLocaleString()} prendas`;
+    document.getElementById('kpiTotalDefSub').textContent = 'En ' + cantOT.toLocaleString() + ' prendas';
 
-    // Chart Casos
-    const ctx1 = document.getElementById('chartCasos').getContext('2d');
+    var ctx1 = document.getElementById('chartCasos').getContext('2d');
     if (chartCasos) chartCasos.destroy();
     chartCasos = new Chart(ctx1, {
       type: 'bar',
-      data: {
-        labels: ['Registro Defectos', 'Consultas', 'Muestras'],
-        datasets: [{ data: [records.reduce((s,r)=>s+val(r,'Casos Registro Defectos'),0), records.reduce((s,r)=>s+val(r,'Casos Consultas'),0), records.reduce((s,r)=>s+val(r,'Casos Muestras'),0)], backgroundColor: ['#E8541A','#1D4ED8','#15803D'], borderRadius: 6, borderSkipped: false }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'DM Sans', size: 11 } }, grid: { color: '#E0DDD7' } }, x: { ticks: { font: { family: 'DM Sans', size: 11 } }, grid: { display: false } } } }
+      data: { labels: ['Registro Defectos','Consultas','Muestras'], datasets: [{ data: [regDef,consultas,muestras], backgroundColor: ['#E8541A','#1D4ED8','#15803D'], borderRadius: 6, borderSkipped: false }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize:1, font:{family:'DM Sans',size:11} }, grid:{color:'#E0DDD7'} }, x: { ticks:{font:{family:'DM Sans',size:11}}, grid:{display:false} } } }
     });
 
-    // Chart Muestras
-    const ctx2 = document.getElementById('chartMuestras').getContext('2d');
+    var ctx2 = document.getElementById('chartMuestras').getContext('2d');
     if (chartMuestras) chartMuestras.destroy();
     if (confirmados === 0 && noConfirmados === 0) {
-      chartMuestras = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Sin datos'], datasets: [{ data: [1], backgroundColor: ['#E0DDD7'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      chartMuestras = new Chart(ctx2, { type:'doughnut', data:{labels:['Sin datos'],datasets:[{data:[1],backgroundColor:['#E0DDD7']}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
     } else {
-      chartMuestras = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Confirmado', 'No Confirmado'], datasets: [{ data: [confirmados, noConfirmados], backgroundColor: ['#1D4ED8','#DC2626'], borderWidth: 0, hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, padding: 16 } } }, cutout: '65%' } });
+      chartMuestras = new Chart(ctx2, { type:'doughnut', data:{labels:['Confirmado','No Confirmado'],datasets:[{data:[confirmados,noConfirmados],backgroundColor:['#1D4ED8','#DC2626'],borderWidth:0,hoverOffset:6}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:12},padding:16}}},cutout:'65%'} });
     }
 
-    // Defect bars
-    const defByTec = {};
-    records.forEach(r => { const tec = r.fields['Técnica'] || 'Sin técnica'; defByTec[tec] = (defByTec[tec] || 0) + val(r,'Cantidad Defectos Totales'); });
-    const totalD = Object.values(defByTec).reduce((s,v)=>s+v,0);
-    const colors = ['#E8541A','#1D4ED8','#15803D','#B45309','#7C3AED'];
-    const container = document.getElementById('defectBars');
-    if (totalD === 0) { container.innerHTML = '<div class="empty-state">No hay defectos registrados en este período</div>'; }
-    else {
-      container.innerHTML = Object.entries(defByTec).sort((a,b)=>b[1]-a[1]).map(([label, count], i) => {
-        const pct = ((count/totalD)*100).toFixed(1);
-        return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;font-weight:500;">${label}</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">${count} · ${pct}%</span></div><div style="display:flex;align-items:center;gap:10px;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:${pct}%;background:${colors[i%colors.length]};"></div></div></div></div>`;
+    var defByTec = {};
+    records.forEach(function(r) { var tec = r.fields['Técnica'] || 'Sin técnica'; defByTec[tec] = (defByTec[tec]||0) + v(r,'Cantidad Defectos Totales'); });
+    var totalD = Object.values(defByTec).reduce(function(s,x){return s+x;},0);
+    var colors = ['#E8541A','#1D4ED8','#15803D','#B45309','#7C3AED'];
+    var container = document.getElementById('defectBars');
+    if (totalD === 0) {
+      container.innerHTML = '<div class="empty-state">No hay defectos registrados en este período</div>';
+    } else {
+      container.innerHTML = Object.entries(defByTec).sort(function(a,b){return b[1]-a[1];}).map(function(entry, i) {
+        var pct = ((entry[1]/totalD)*100).toFixed(1);
+        return '<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:12px;font-weight:500;">' + entry[0] + '</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">' + entry[1] + ' · ' + pct + '%</span></div><div style="display:flex;align-items:center;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:' + pct + '%;background:' + colors[i%colors.length] + ';"></div></div></div></div>';
       }).join('');
     }
 
-    // Insights
-    const byTipo = { 'Registro Defectos': records.reduce((s,r)=>s+val(r,'Casos Registro Defectos'),0), 'Consultas': records.reduce((s,r)=>s+val(r,'Casos Consultas'),0), 'Muestras': records.reduce((s,r)=>s+val(r,'Casos Muestras'),0) };
-    const topTipo = Object.entries(byTipo).sort((a,b)=>b[1]-a[1])[0];
-    const totalCasosI = Object.values(byTipo).reduce((s,v)=>s+v,0);
-    document.getElementById('insightCaso').textContent = totalCasosI > 0 ? `"${topTipo[0]}" es el tipo más frecuente con ${topTipo[1]} registros (${((topTipo[1]/totalCasosI)*100).toFixed(1)}% del total).` : 'No hay casos en este período.';
+    var byTipo = { 'Registro Defectos': regDef, 'Consultas': consultas, 'Muestras': muestras };
+    var topTipo = Object.entries(byTipo).sort(function(a,b){return b[1]-a[1];})[0];
+    var totalCasosI = regDef + consultas + muestras;
+    document.getElementById('insightCaso').textContent = totalCasosI > 0 ? '"' + topTipo[0] + '" es el tipo más frecuente con ' + topTipo[1] + ' registros (' + ((topTipo[1]/totalCasosI)*100).toFixed(1) + '% del total).' : 'No hay casos en este período.';
 
-    const sortedDef = Object.entries(defByTec).sort((a,b)=>b[1]-a[1]);
-    document.getElementById('insightDefecto').textContent = sortedDef.length > 0 && totalD > 0 ? `La técnica con más defectos es ${sortedDef[0][0]} con ${sortedDef[0][1]} defectos (${((sortedDef[0][1]/totalD)*100).toFixed(1)}% del total).` : 'No se detectaron defectos en este período. ✓';
+    var sortedDef = Object.entries(defByTec).sort(function(a,b){return b[1]-a[1];});
+    document.getElementById('insightDefecto').textContent = sortedDef.length > 0 && totalD > 0 ? 'La técnica con más defectos es ' + sortedDef[0][0] + ' con ' + sortedDef[0][1] + ' defectos (' + ((sortedDef[0][1]/totalD)*100).toFixed(1) + '% del total).' : 'No se detectaron defectos en este período. ✓';
 
-    const nivel = pctDef < 1 ? 'dentro de rangos aceptables' : pctDef < 3 ? 'en nivel de alerta' : 'por encima del umbral crítico';
-    document.getElementById('insightPct').textContent = `El ${pctDef}% de las prendas presentan defectos. El nivel está ${nivel}.`;
+    var nivel = pctDef < 1 ? 'dentro de rangos aceptables' : pctDef < 3 ? 'en nivel de alerta' : 'por encima del umbral crítico';
+    document.getElementById('insightPct').textContent = 'El ' + pctDef + '% de las prendas presentan defectos. El nivel está ' + nivel + '.';
 
-    // Table
-    document.getElementById('tableCount').textContent = `${records.length} registros`;
-    const tbody = document.getElementById('tableBody');
+    document.getElementById('tableCount').textContent = records.length + ' registros';
+    var tbody = document.getElementById('tableBody');
     if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No hay órdenes de trabajo en este período</td></tr>'; return; }
-    tbody.innerHTML = [...records].sort((a,b) => (b.fields['Fecha']||'').localeCompare(a.fields['Fecha']||'')).map(r => {
-      const f = r.fields;
-      const pct = f['% Defectos'];
-      const pctStr = pct !== undefined ? (typeof pct === 'number' ? (pct*100).toFixed(2) : pct) + '%' : '—';
-      const pctNum = parseFloat(pctStr) || 0;
-      const pctClass = pctNum === 0 ? 'badge-green' : pctNum < 1 ? 'badge-amber' : 'badge-red';
-      return `<tr>
-        <td><span class="td-ot">${f['Orden de Trabajo']||'—'}</span></td>
-        <td>${f['Fecha'] ? new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
-        <td>${f['Nombre Cliente']||'—'}</td><td>${f['Técnica']||'—'}</td><td>${f['Producto']||'—'}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${(f['Cantidad OT']||0).toLocaleString()}</td>
-        <td><span class="badge ${pctClass}">${pctStr}</span></td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Cantidad Defectos Totales']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Defecto Detectado por KnowFlow Confirmados']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Defecto Detectado por KnowFlow No Confirmados']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Casos Totales']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Casos Registro Defectos']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Casos Muestras']||0}</td>
-        <td style="font-family:var(--mono);font-size:12px;">${f['Casos Consultas']||0}</td>
-      </tr>`;
+    tbody.innerHTML = records.slice().sort(function(a,b){return (b.fields['Fecha']||'').localeCompare(a.fields['Fecha']||'');}).map(function(r) {
+      var f = r.fields;
+      var pct = f['% Defectos'];
+      var pctStr = pct !== undefined ? (typeof pct === 'number' ? (pct*100).toFixed(2) : pct) + '%' : '—';
+      var pctNum = parseFloat(pctStr) || 0;
+      var pctClass = pctNum === 0 ? 'badge-green' : pctNum < 1 ? 'badge-amber' : 'badge-red';
+      var fecha = f['Fecha'] ? new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      return '<tr><td><span class="td-ot">'+(f['Orden de Trabajo']||'—')+'</span></td><td>'+fecha+'</td><td>'+(f['Nombre Cliente']||'—')+'</td><td>'+(f['Técnica']||'—')+'</td><td>'+(f['Producto']||'—')+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Cantidad OT']||0).toLocaleString()+'</td><td><span class="badge '+pctClass+'">'+pctStr+'</span></td><td style="font-family:var(--mono);font-size:12px;">'+(f['Cantidad Defectos Totales']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Defecto Detectado por KnowFlow Confirmados']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Defecto Detectado por KnowFlow No Confirmados']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Casos Totales']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Casos Registro Defectos']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Casos Muestras']||0)+'</td><td style="font-family:var(--mono);font-size:12px;">'+(f['Casos Consultas']||0)+'</td></tr>';
     }).join('');
   }
 
-  loadAll();
+  // Init: only load if already authenticated
+  if (sessionStorage.getItem('kf_auth') === '1') {
+    loadAll();
+  }
 </script>
 </body>
 </html>
