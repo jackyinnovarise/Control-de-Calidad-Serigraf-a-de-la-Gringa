@@ -43,7 +43,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
 .header-left{display:flex;align-items:center;gap:14px;}
 .h-logo-kf{height:28px;object-fit:contain;}
-.h-logo-gringa{height:30px;object-fit:contain;mix-blend-mode:multiply;}
+.h-logo-gringa{height:30px;object-fit:contain;filter:invert(1) sepia(1) saturate(3) hue-rotate(155deg) brightness(1.1);}
 .dv{width:1px;height:22px;background:var(--border);}
 .h-sub{font-size:11px;color:var(--muted);}
 .header-right{display:flex;align-items:center;gap:10px;}
@@ -194,7 +194,7 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
     <div class="login-logos">
       <img src="./knowflow-logo.png" style="height:30px;object-fit:contain;" alt="KnowFlow">
       <div class="login-logo-sep"></div>
-      <img src="./gringa-logo.png" style="height:26px;object-fit:contain;mix-blend-mode:multiply;" alt="Serigrafía La Gringa">
+      <img src="./gringa-logo.png" style="height:26px;object-fit:contain;filter:invert(1) sepia(1) saturate(3) hue-rotate(155deg) brightness(1.1);" alt="Serigrafía La Gringa">
     </div>
     <div class="login-subtitle">Dashboard de Control de Calidad</div>
     <div class="login-client"><div class="login-client-dot"></div>Serigrafía La Gringa</div>
@@ -317,11 +317,11 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
   <div class="g3">
     <div class="card">
       <div class="ch"><span class="ct">Tendencia semanal de defectos</span><span class="ctag">histórico</span></div>
-      <div class="cb"><div class="cwt"><canvas id="cTend"></canvas></div></div>
+      <div class="cb"><div class="cwt" style="position:relative;height:235px;width:100%;"><canvas id="cTend"></canvas></div></div>
     </div>
-    <div class="card">
+    <div class="card" style="display:flex;flex-direction:column;">
       <div class="ch"><span class="ct">Tipos de caso</span><span class="ctag">casos KnowFlow</span></div>
-      <div class="cb" id="casoCard" style="display:flex;align-items:center;"><div class="empty-state">Cargando...</div></div>
+      <div class="cb" id="casoCard" style="display:flex;align-items:center;justify-content:center;flex:1;"><div class="empty-state">Cargando...</div></div>
     </div>
   </div>
 
@@ -508,8 +508,8 @@ async function loadAll(){
     if(allCon.length>0) console.log('Campos en Consultas:', Object.keys(allCon[0].fields).join(', '));
     // END DEBUG
     populateTblFilters();
-    applyFilters();
     renderTendencia();
+    applyFilters();
     var now=new Date();
     document.getElementById('lastUpdate').textContent='Actualizado '+now.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('statusText').innerHTML='<strong>'+allOT.length+'</strong> \u00F3rdenes de trabajo cargadas';
@@ -685,7 +685,7 @@ function renderDashboard(recs,prevRecs,reg,mue,con){
   // Defectos por tecnica - usando campo correcto con acento
   var defByTec={};
   recs.forEach(function(r){
-    var t=r.fields['T\u00E9cnica']||'Sin t\u00E9cnica';
+    var tv=r.fields['T\u00E9cnica'];var t=Array.isArray(tv)?tv[0]||'Sin t\u00E9cnica':tv||'Sin t\u00E9cnica';
     defByTec[t]=(defByTec[t]||0)+fv(r,'Cantidad Defectos Totales');
   });
 
@@ -764,8 +764,7 @@ function renderDashboard(recs,prevRecs,reg,mue,con){
 
 function mkCaso(n, total, label, color, hex){
   var pct=total>0?Math.round((n/total)*100):0;
-  var barW=total>0?Math.round((n/total)*100):0;
-  return '<div class="caso-item">'+
+  return '<div class="caso-item" style="flex:1;">'+
     '<div class="caso-num" style="color:'+color+'">'+n+'</div>'+
     '<div class="caso-label">'+label+'</div>'+
     '<div class="caso-pct">'+pct+'%</div>'+
@@ -823,9 +822,24 @@ function renderInsights(totalC,rd,co,mu,tiposSorted,pctDef,prevPct,conf,noConf,e
 
 // \u2500\u2500 TABLE VIEW \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function populateTblFilters(){
-  var tecs=Array.from(new Set(allOT.map(function(r){var t=r.fields['T\u00E9cnica'];return t?t.trim():null;}).filter(Boolean))).sort();
-  var clis=Array.from(new Set(allOT.map(function(r){var t=r.fields['Nombre Cliente'];return t?t.trim():null;}).filter(Boolean))).sort();
-  var prods=Array.from(new Set(allOT.map(function(r){var t=r.fields['Producto'];return t?t.trim():null;}).filter(Boolean))).sort();
+  var tecs=Array.from(new Set(allOT.map(function(r){
+    var t=r.fields['T\u00E9cnica'];
+    if(!t) return null;
+    if(Array.isArray(t)) return t[0]?String(t[0]).trim():null;
+    return String(t).trim();
+  }).filter(Boolean))).sort();
+  var clis=Array.from(new Set(allOT.map(function(r){
+    var t=r.fields['Nombre Cliente'];
+    if(!t) return null;
+    if(Array.isArray(t)) return t[0]?String(t[0]).trim():null;
+    return String(t).trim();
+  }).filter(Boolean))).sort();
+  var prods=Array.from(new Set(allOT.map(function(r){
+    var t=r.fields['Producto'];
+    if(!t) return null;
+    if(Array.isArray(t)) return t[0]?String(t[0]).trim():null;
+    return String(t).trim();
+  }).filter(Boolean))).sort();
   document.getElementById('tblTecnica').innerHTML='<option value="">Todas las t\u00E9cnicas</option>'+tecs.map(function(t){return '<option>'+t+'</option>';}).join('');
   document.getElementById('tblCliente').innerHTML='<option value="">Todos los clientes</option>'+clis.map(function(c){return '<option>'+c+'</option>';}).join('');
   document.getElementById('tblProducto').innerHTML='<option value="">Todos los productos</option>'+prods.map(function(p){return '<option>'+p+'</option>';}).join('');
@@ -851,7 +865,7 @@ function renderTable(){
   var prod=document.getElementById('tblProducto').value;
   var df=document.getElementById('tblFrom').value;
   var dt=document.getElementById('tblTo').value;
-  if(tec) recs=recs.filter(function(r){return r.fields['T\u00E9cnica']===tec;});
+  if(tec) recs=recs.filter(function(r){var tv=r.fields['T\u00E9cnica'];var t=Array.isArray(tv)?tv[0]:tv;return t===tec;});
   if(cli) recs=recs.filter(function(r){return r.fields['Nombre Cliente']===cli;});
   if(prod) recs=recs.filter(function(r){return r.fields['Producto']===prod;});
   if(df) recs=recs.filter(function(r){return r.fields['Fecha']&&r.fields['Fecha']>=df;});
@@ -899,7 +913,7 @@ function renderTable(){
       '<td><span class=tdot>'+(f['Orden de Trabajo']||'')+'</span></td>'+
       '<td>'+fecha+'</td>'+
       '<td>'+(f['Nombre Cliente']||'')+'</td>'+
-      '<td>'+(f['T\u00E9cnica']||'')+'</td>'+
+      '<td>'+(Array.isArray(f['T\u00E9cnica'])?f['T\u00E9cnica'][0]:f['T\u00E9cnica']||'')+'</td>'+
       '<td>'+(f['Producto']||'')+'</td>'+
       '<td style="font-family:var(--mono);font-size:11px">'+cantOTr.toLocaleString()+'</td>'+
       '<td><span class="badge '+cls+'">'+pctStr+'</span></td>'+
