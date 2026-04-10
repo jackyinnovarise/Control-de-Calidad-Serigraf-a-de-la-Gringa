@@ -184,6 +184,96 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
 .li{display:flex;align-items:center;gap:5px;}
 .ld{width:7px;height:7px;border-radius:2px;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE MOBILE ─────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Header */
+  .header { padding: 0 16px; height: 54px; }
+  .h-logo-kf { height: 22px; }
+  .h-logo-gringa { height: 20px; }
+  .h-sub { display: none; }
+  .dv { display: none; }
+  .last-upd { display: none; }
+  .btn-ref { padding: 6px 10px; font-size: 11px; }
+
+  /* Tabs */
+  .nav-tabs { padding: 0 12px; gap: 0; overflow-x: auto; }
+  .nav-tab { padding: 10px 12px; font-size: 12px; white-space: nowrap; }
+
+  /* Filters */
+  .filters-bar { padding: 10px 14px; gap: 7px; }
+  .bw { padding: 5px 10px; font-size: 11px; }
+  .pd { min-width: 140px; font-size: 11px; }
+  .fl { font-size: 10px; }
+  select, input[type=date] { font-size: 11px; padding: 5px 7px; }
+
+  /* Main padding */
+  .main { padding: 14px 14px; }
+
+  /* KPI grid: 2 columns on mobile */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+  .kc { padding: 12px 13px; }
+  .kv { font-size: 20px; }
+  .kl { font-size: 9px; }
+  .ks { font-size: 10px; }
+  .kt { font-size: 9px; }
+
+  /* Charts: stack vertically */
+  .g3 { grid-template-columns: 1fr; }
+  .g2 { grid-template-columns: 1fr; }
+  .cwt { height: 200px !important; }
+  .cw { height: 180px; }
+
+  /* Tooltip repositioning on mobile */
+  .ktt { right: auto; left: 0; width: 180px; }
+  .ktt::after { right: auto; left: 10px; }
+
+  /* Card padding */
+  .ch { padding: 11px 14px 9px; }
+  .cb { padding: 12px 14px; }
+  .ct { font-size: 11px; }
+  .ctag { font-size: 9px; padding: 2px 6px; }
+
+  /* Caso scorecard */
+  .caso-grid { gap: 7px; }
+  .caso-num { font-size: 22px; }
+  .caso-label { font-size: 9px; }
+
+  /* Insights: 1 column */
+  .ig { grid-template-columns: 1fr; }
+  .it { font-size: 9px; }
+  .itx { font-size: 11px; }
+
+  /* Table view */
+  .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { font-size: 11px; }
+  thead th { padding: 7px 9px; font-size: 9px; }
+  tbody td { padding: 8px 9px; }
+  .tdot { font-size: 10px; padding: 1px 5px; }
+  .badge { font-size: 9px; padding: 1px 5px; }
+
+  /* Detail grid in row expand */
+  .dg { grid-template-columns: repeat(2, 1fr); }
+
+  /* Table filters */
+  #tblFilters { flex-direction: column; align-items: flex-start; gap: 8px; }
+  #tblFilters select { width: 100%; }
+
+  /* Defectos view */
+  #vDefectos .cb > div { flex-direction: column !important; align-items: center !important; }
+  #fuentesStats { width: 100% !important; }
+
+  /* Status bar */
+  .status-bar { font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  /* Extra small: 1 KPI column for very small phones */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .header-left { gap: 8px; }
+  .nav-tab { font-size: 11px; padding: 9px 10px; }
+}
 </style>
 </head>
 <body>
@@ -217,6 +307,7 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
     <span class="h-sub">Control de Calidad</span>
   </div>
   <div class="header-right">
+    <span class="last-upd" id="userBadge" style="background:var(--orange-light);color:var(--orange);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;"></span>
     <span class="last-upd" id="lastUpdate">&#8212;</span>
     <button class="btn-ref" id="refreshBtn" onclick="loadAll()">&#8635; Actualizar</button>
   </div>
@@ -409,7 +500,9 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
 </div>
 
 <script>
-var PASS = 'gringa2026';
+var PASS_ADMIN = 'knowflow-admin';
+var PASS_CLIENTE = 'gringa2026';
+var currentUser = '';
 var allOT = [], allReg = [], allMue = [], allCon = [];
 var currentView = 'semana', weekOffset = 0;
 var sortCol = 'fecha', sortDir = -1;
@@ -422,9 +515,13 @@ var cTend = null, cKF = null, cFuentes = null;
 function checkLogin(){
   var inp = document.getElementById('loginInput');
   var err = document.getElementById('loginError');
-  if(inp.value === PASS){
+  var val = inp.value;
+  if(val === PASS_ADMIN || val === PASS_CLIENTE){
+    currentUser = val === PASS_ADMIN ? 'KnowFlow' : 'La Gringa';
     sessionStorage.setItem('kf_auth','1');
+    sessionStorage.setItem('kf_user', currentUser);
     document.getElementById('loginOverlay').classList.add('hidden');
+    logAccess(currentUser);
     loadAll();
   } else {
     inp.classList.add('error');
@@ -433,7 +530,10 @@ function checkLogin(){
     setTimeout(function(){ inp.classList.remove('error'); }, 400);
   }
 }
-if(sessionStorage.getItem('kf_auth')==='1') document.getElementById('loginOverlay').classList.add('hidden');
+if(sessionStorage.getItem('kf_auth')==='1'){
+  currentUser = sessionStorage.getItem('kf_user') || '';
+  document.getElementById('loginOverlay').classList.add('hidden');
+}
 
 // \u2500\u2500 VIEW SWITCHING \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function switchView(v){
@@ -463,6 +563,28 @@ async function fetchTable(name){
     offset=d.offset;
   } while(offset);
   return recs;
+}
+
+function logAccess(usuario){
+  try {
+    var now = new Date();
+    var fecha = now.toLocaleDateString('es-GT', {day:'2-digit',month:'2-digit',year:'numeric'});
+    var hora = now.toLocaleTimeString('es-GT', {hour:'2-digit',minute:'2-digit', hour12:true});
+    var dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+    fetch('/api/airtable', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        table: 'Dashboard Logs',
+        fields: {
+          'Fecha': fecha,
+          'Hora': hora,
+          'Usuario': usuario,
+          'Dispositivo': dispositivo
+        }
+      })
+    });
+  } catch(e) { console.log('Log error:', e); }
 }
 
 async function loadAll(){
@@ -509,6 +631,7 @@ async function loadAll(){
     applyFilters();
     var now=new Date();
     document.getElementById('lastUpdate').textContent='Actualizado '+now.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'});
+    if(currentUser) document.getElementById('userBadge').textContent = currentUser;
     document.getElementById('statusText').innerHTML='<strong>'+allOT.length+'</strong> \u00F3rdenes de trabajo cargadas';
   } catch(e){
     document.getElementById('statusText').textContent='Error: '+e.message;
