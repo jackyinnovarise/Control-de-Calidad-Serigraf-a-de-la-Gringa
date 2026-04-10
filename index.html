@@ -402,7 +402,7 @@ tbody td{padding:9px 12px;white-space:nowrap;}
 </div>
 
 <script>
-var PASS = 'La.Gringa_26';
+var PASS = 'gringa2026';
 var TABLE_OT = 'Órdenes de Trabajo';
 var TABLE_REG_DEF = 'Registro Defectos';
 var TABLE_MUESTRAS = 'Muestras';
@@ -422,6 +422,7 @@ var activeTab = 'dashboard';
 
 function checkLogin() {
   var input = document.getElementById('loginInput');
+  console.log('INPUT:', input.value, '| PASS:', PASS, '| MATCH:', input.value === PASS);
   var error = document.getElementById('loginError');
   if (input.value === PASS) {
     sessionStorage.setItem('kf_auth','1');
