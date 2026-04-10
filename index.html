@@ -865,7 +865,11 @@ function renderTable(){
     var fecha=f['Fecha']?new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}):'';
     var conf2=f['Defecto Detectado por KnowFlow Confirmados']||0;
     var noConf2=f['Defecto Detectado por KnowFlow No Confirmados']||0;
-    html.push('<tr onclick="toggleRow(''+r.id+'')">'+
+    var rid=r.id;
+    var tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.addEventListener('click',function(){toggleRow(rid);});
+    tr.innerHTML=
       '<td><span class=tdot>'+(f['Orden de Trabajo']||'')+'</span></td>'+
       '<td>'+fecha+'</td>'+
       '<td>'+(f['Nombre Cliente']||'')+'</td>'+
@@ -876,14 +880,19 @@ function renderTable(){
       '<td style="font-family:var(--mono);font-size:11px">'+afect+'</td>'+
       '<td style="font-family:var(--mono);font-size:11px">'+conf2+'</td>'+
       '<td style="font-family:var(--mono);font-size:11px">'+noConf2+'</td>'+
-      '<td style="font-family:var(--mono);font-size:11px">'+(f['Casos Totales']||0)+'</td>'+
-    '</tr>'+
-    '<tr class=row-detail id="dr-'+r.id+'" style="display:none"><td colspan=11><div class=dg>'+
+      '<td style="font-family:var(--mono);font-size:11px">'+(f['Casos Totales']||0)+'</td>';
+    html.push(tr.outerHTML);
+    var dr=document.createElement('tr');
+    dr.className='row-detail';
+    dr.id='dr-'+rid;
+    dr.style.display='none';
+    dr.innerHTML='<td colspan=11><div class=dg>'+
       '<div class=di><div class=dl>Reg. Defectos</div><div class=dv2>'+(f['Casos Registro Defectos']||0)+'</div></div>'+
       '<div class=di><div class=dl>Muestras</div><div class=dv2>'+(f['Casos Muestras']||0)+'</div></div>'+
       '<div class=di><div class=dl>Consultas</div><div class=dv2>'+(f['Casos Consultas']||0)+'</div></div>'+
       '<div class=di><div class=dl>Confirmados KF</div><div class=dv2>'+conf2+'</div></div>'+
-    '</div></td></tr>');
+    '</div></td>';
+    html.push(dr.outerHTML);
   });
   tbody.innerHTML=html.join('');
 }
