@@ -403,7 +403,7 @@ tbody td{padding:9px 12px;white-space:nowrap;}
 
 <script>
 var PASS = 'gringa2026';
-var TABLE_OT = 'Órdenes de Trabajo';
+var TABLE_OT = 'Ordenes de Trabajo';
 var TABLE_REG_DEF = 'Registro Defectos';
 var TABLE_MUESTRAS = 'Muestras';
 var TABLE_CONSULTAS = 'Consultas';
@@ -430,7 +430,7 @@ function checkLogin() {
     loadAll();
   } else {
     input.classList.add('error');
-    error.textContent = 'Contraseña incorrecta.';
+    error.textContent = 'Contrasena incorrecta.';
     input.value = '';
     setTimeout(function(){input.classList.remove('error');},400);
   }
@@ -482,7 +482,7 @@ async function loadAll() {
     renderTendencia(allRecords);
     var now = new Date();
     document.getElementById('lastUpdate').textContent = 'Actualizado '+now.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('statusText').innerHTML = '<strong>'+allRecords.length+'</strong> órdenes de trabajo cargadas';
+    document.getElementById('statusText').innerHTML = '<strong>'+allRecords.length+'</strong> \u00F3rdenes de trabajo cargadas';
   } catch(e) {
     document.getElementById('statusText').textContent = 'Error: '+e.message;
   }
@@ -491,10 +491,10 @@ async function loadAll() {
 }
 
 function populateTableFilters() {
-  var tec = Array.from(new Set(allRecords.map(function(r){return r.fields['Técnica'];}).filter(Boolean))).sort();
+  var tec = Array.from(new Set(allRecords.map(function(r){return r.fields['Tecnica'];}).filter(Boolean))).sort();
   var cli = Array.from(new Set(allRecords.map(function(r){return r.fields['Nombre Cliente'];}).filter(Boolean))).sort();
   var prod = Array.from(new Set(allRecords.map(function(r){return r.fields['Producto'];}).filter(Boolean))).sort();
-  document.getElementById('tblTecnica').innerHTML = '<option value="">Todas las técnicas</option>'+tec.map(function(t){return '<option>'+t+'</option>';}).join('');
+  document.getElementById('tblTecnica').innerHTML = '<option value="">Todas las t\u00E9cnicas</option>'+tec.map(function(t){return '<option>'+t+'</option>';}).join('');
   document.getElementById('tblCliente').innerHTML = '<option value="">Todos los clientes</option>'+cli.map(function(c){return '<option>'+c+'</option>';}).join('');
   document.getElementById('tblProducto').innerHTML = '<option value="">Todos los productos</option>'+prod.map(function(p){return '<option>'+p+'</option>';}).join('');
 }
@@ -531,7 +531,7 @@ function applyFilters() {
     var r = getWeekRange(currentWeekOffset); var pr = getWeekRange(currentWeekOffset-1);
     recs = recs.filter(function(x){var f=x.fields['Fecha'];if(!f)return false;var d=new Date(f);return d>=r.from&&d<=r.to;});
     prevRecs = allRecords.filter(function(x){var f=x.fields['Fecha'];if(!f)return false;var d=new Date(f);return d>=pr.from&&d<=pr.to;});
-    document.getElementById('periodDisplay').textContent = formatDate(r.from)+' – '+formatDate(r.to);
+    document.getElementById('periodDisplay').textContent = formatDate(r.from)+' - '+formatDate(r.to);
   } else if (currentView==='consolidado') {
     document.getElementById('periodDisplay').textContent = 'Todo el historial';
   } else {
@@ -545,7 +545,7 @@ function applyFilters() {
 
 function fv(r,f){var v=r.fields[f];return(v===undefined||v===null)?0:(typeof v==='number'?v:(parseFloat(v)||0));}
 
-// ── TENDENCIA ──────────────────────────────────────────────
+// -- TENDENCIA ----------------------------------------------
 function renderTendencia(recs) {
   var wm = {};
   recs.forEach(function(r){
@@ -558,7 +558,7 @@ function renderTendencia(recs) {
     wm[k].cant+=fv(r,'Cantidad OT');
   });
   var keys=Object.keys(wm).sort();
-  if(!keys.length){document.getElementById('chartTendencia').parentElement.innerHTML='<div class="empty-state">Sin datos históricos</div>';return;}
+  if(!keys.length){document.getElementById('chartTendencia').parentElement.innerHTML='<div class="empty-state">Sin datos hist\u00F3ricos</div>';return;}
   var labels=keys.map(function(k){return wm[k].label;});
   var pcts=keys.map(function(k){return wm[k].cant>0?parseFloat(((wm[k].def/wm[k].cant)*100).toFixed(2)):0;});
   var defs=keys.map(function(k){return wm[k].def;});
@@ -575,24 +575,24 @@ function renderTendencia(recs) {
       y1:{beginAtZero:true,position:'right',ticks:{font:{family:'DM Sans',size:10},stepSize:1},grid:{display:false}}}}});
 }
 
-// ── TIPOS DE DEFECTO CONSOLIDADO (3 tablas) ────────────────
+// -- TIPOS DE DEFECTO CONSOLIDADO (3 tablas) ----------------
 function getTiposDefecto(dateFrom, dateTo) {
   var counts = {};
-  // 1. Registro Defectos — todos los registros con tipo
+  // 1. Registro Defectos \u2014 todos los registros con tipo
   allRegDef.forEach(function(r){
     if(dateFrom&&r.fields['Fecha']&&r.fields['Fecha']<dateFrom) return;
     if(dateTo&&r.fields['Fecha']&&r.fields['Fecha']>dateTo) return;
     var t=r.fields['Tipo de Defecto Detectado'];
     if(t) counts[t]=(counts[t]||0)+1;
   });
-  // 2. Muestras — con tipo de defecto
+  // 2. Muestras \u2014 con tipo de defecto
   allMuestras.forEach(function(r){
     if(dateFrom&&r.fields['Fecha']&&r.fields['Fecha']<dateFrom) return;
     if(dateTo&&r.fields['Fecha']&&r.fields['Fecha']>dateTo) return;
     var t=r.fields['Tipo de Defecto Detectado'];
     if(t) counts[t]=(counts[t]||0)+1;
   });
-  // 3. Consultas — solo donde Defecto = "Si"
+  // 3. Consultas \u2014 solo donde Defecto = "Si"
   allConsultas.forEach(function(r){
     if(dateFrom&&r.fields['Fecha']&&r.fields['Fecha']<dateFrom) return;
     if(dateTo&&r.fields['Fecha']&&r.fields['Fecha']>dateTo) return;
@@ -604,7 +604,7 @@ function getTiposDefecto(dateFrom, dateTo) {
   return counts;
 }
 
-// ── RENDER DASHBOARD ───────────────────────────────────────
+// -- RENDER DASHBOARD ---------------------------------------
 function renderDashboard(recs, prevRecs) {
   var totalDef=recs.reduce(function(s,r){return s+fv(r,'Cantidad Defectos Totales');},0);
   var conf=recs.reduce(function(s,r){return s+fv(r,'Defecto Detectado por KnowFlow Confirmados');},0);
@@ -637,32 +637,32 @@ function renderDashboard(recs, prevRecs) {
 
   // KPIs
   document.getElementById('kpiCasos').textContent=totalCasos;
-  document.getElementById('kpiCasosSub').textContent=regDef+' reg. · '+consultas+' consultas · '+muestras+' muestras';
+  document.getElementById('kpiCasosSub').textContent=regDef+' reg. \u00B7 '+consultas+' consultas \u00B7 '+muestras+' muestras';
   document.getElementById('kpiOT').textContent=recs.length;
   document.getElementById('kpiOTSub').textContent=cantOT.toLocaleString()+' prendas en total';
   document.getElementById('kpiDefPct').textContent=pctDef+'%';
-  document.getElementById('kpiDefPctSub').textContent=totalDef>0?totalDef+' prendas afectadas de '+cantOT.toLocaleString():'Sin prendas afectadas ✓';
+  document.getElementById('kpiDefPctSub').textContent=totalDef>0?totalDef+' prendas afectadas de '+cantOT.toLocaleString():'Sin prendas afectadas \u2713';
 
   var trendEl=document.getElementById('kpiTrend');
   if(prevPct!==null&&currentView==='semana'){
     trendEl.style.display='inline-block';
     var diff=pctDef-prevPct;
-    if(diff>0.01){trendEl.className='kpi-trend trend-up';trendEl.textContent='▲ '+diff.toFixed(2)+'%';}
-    else if(diff<-0.01){trendEl.className='kpi-trend trend-down';trendEl.textContent='▼ '+Math.abs(diff).toFixed(2)+'%';}
+    if(diff>0.01){trendEl.className='kpi-trend trend-up';trendEl.textContent='\u25B2 '+diff.toFixed(2)+'%';}
+    else if(diff<-0.01){trendEl.className='kpi-trend trend-down';trendEl.textContent='\u25BC '+Math.abs(diff).toFixed(2)+'%';}
     else{trendEl.className='kpi-trend trend-flat';trendEl.textContent='= sin cambio';}
   } else {trendEl.style.display='none';}
 
-  document.getElementById('kpiEfectividad').textContent=efectividad!==null?efectividad+'%':'—';
+  document.getElementById('kpiEfectividad').textContent=efectividad!==null?efectividad+'%':'';
   document.getElementById('kpiEfectividadSub').textContent=conf+' confirmados de '+(conf+noConf)+' detectados';
-  document.getElementById('kpiOTLimpias').textContent=pctOTLimpias!==null?pctOTLimpias+'%':'—';
+  document.getElementById('kpiOTLimpias').textContent=pctOTLimpias!==null?pctOTLimpias+'%':'';
   document.getElementById('kpiOTLimpiasSub').textContent=otsSinDef+' de '+recs.length+' OTs sin defectos';
-  document.getElementById('kpiTopDefecto').textContent=topDefecto?topDefecto[0]:'Sin defectos ✓';
+  document.getElementById('kpiTopDefecto').textContent=topDefecto?topDefecto[0]:'Sin defectos \u2713';
   document.getElementById('kpiTopDefectoSub').textContent=topDefecto?topDefecto[1]+' ocurrencia'+(topDefecto[1]>1?'s':''):'';
 
   // Scorecard casos
   var totalC=regDef+consultas+muestras;
   var sc=document.getElementById('casoScorecard');
-  if(totalC===0){sc.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">✓</div><div class="empty-ok-text">Sin casos en este período</div></div>';}
+  if(totalC===0){sc.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">\u2713</div><div class="empty-ok-text">Sin casos en este per\u00EDodo</div></div>';}
   else{sc.innerHTML='<div class="caso-scorecard">'+
     '<div class="caso-item"><div class="caso-num" style="color:var(--orange)">'+regDef+'</div><div class="caso-label">Reg. Defectos</div><div class="caso-pct">'+Math.round((regDef/totalC)*100)+'%</div></div>'+
     '<div class="caso-item"><div class="caso-num" style="color:var(--blue)">'+consultas+'</div><div class="caso-label">Consultas</div><div class="caso-pct">'+Math.round((consultas/totalC)*100)+'%</div></div>'+
@@ -671,7 +671,7 @@ function renderDashboard(recs, prevRecs) {
 
   // Chart muestras/KF
   var mb=document.getElementById('muestrasBody');
-  if(conf===0&&noConf===0){mb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">✓</div><div class="empty-ok-text">Sin defectos detectados por KnowFlow</div><div class="empty-ok-sub">en este período</div></div>';if(chartMuestras){chartMuestras.destroy();chartMuestras=null;}}
+  if(conf===0&&noConf===0){mb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">\u2713</div><div class="empty-ok-text">Sin defectos detectados por KnowFlow</div><div class="empty-ok-sub">en este per\u00EDodo</div></div>';if(chartMuestras){chartMuestras.destroy();chartMuestras=null;}}
   else{
     mb.innerHTML='<div class="chart-wrap"><canvas id="chartMuestras"></canvas></div>';
     var ctx2=document.getElementById('chartMuestras').getContext('2d');
@@ -682,23 +682,23 @@ function renderDashboard(recs, prevRecs) {
   // Tipos de defecto bars
   var colors=['#E8541A','#1D4ED8','#15803D','#B45309','#7C3AED','#0891B2','#DC2626'];
   var tb=document.getElementById('tiposDefectoBars');
-  if(tiposTotal===0){tb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">✓</div><div class="empty-ok-text">Sin tipos de defecto registrados</div><div class="empty-ok-sub">en este período</div></div>';}
+  if(tiposTotal===0){tb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">\u2713</div><div class="empty-ok-text">Sin tipos de defecto registrados</div><div class="empty-ok-sub">en este per\u00EDodo</div></div>';}
   else{
-    document.getElementById('defectSource').textContent=tiposSorted.length+' tipos · 3 fuentes';
+    document.getElementById('defectSource').textContent=tiposSorted.length+' tipos \u00B7 3 fuentes';
     tb.innerHTML=tiposSorted.slice(0,8).map(function(e,i){
       var pct=((e[1]/tiposTotal)*100).toFixed(1);
-      return '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">'+e[0]+'</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">'+e[1]+' · '+pct+'%</span></div><div style="display:flex;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:'+pct+'%;background:'+colors[i%colors.length]+';height:7px;border-radius:4px;"></div></div></div></div>';
+      return '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">'+e[0]+'</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">'+e[1]+' \u00B7 '+pct+'%</span></div><div style="display:flex;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:'+pct+'%;background:'+colors[i%colors.length]+';height:7px;border-radius:4px;"></div></div></div></div>';
     }).join('');}
 
-  // Defectos por técnica
+  // Defectos por t\u00E9cnica
   var defByTec={};
-  recs.forEach(function(r){var t=r.fields['Técnica']||'Sin técnica';defByTec[t]=(defByTec[t]||0)+fv(r,'Cantidad Defectos Totales');});
+  recs.forEach(function(r){var t=r.fields['Tecnica']||'Sin t\u00E9cnica';defByTec[t]=(defByTec[t]||0)+fv(r,'Cantidad Defectos Totales');});
   var totalDT=Object.values(defByTec).reduce(function(s,v){return s+v;},0);
   var dtb=document.getElementById('defectTecBars');
-  if(totalDT===0){dtb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">✓</div><div class="empty-ok-text">Sin defectos por técnica</div><div class="empty-ok-sub">en este período</div></div>';}
+  if(totalDT===0){dtb.innerHTML='<div class="empty-ok"><div class="empty-ok-icon">\u2713</div><div class="empty-ok-text">Sin defectos por t\u00E9cnica</div><div class="empty-ok-sub">en este per\u00EDodo</div></div>';}
   else{dtb.innerHTML=Object.entries(defByTec).sort(function(a,b){return b[1]-a[1];}).map(function(e,i){
     var pct=((e[1]/totalDT)*100).toFixed(1);
-    return '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">'+e[0]+'</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">'+e[1]+' · '+pct+'%</span></div><div style="display:flex;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:'+pct+'%;background:'+colors[i%colors.length]+';height:7px;border-radius:4px;"></div></div></div></div>';
+    return '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">'+e[0]+'</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted);">'+e[1]+' \u00B7 '+pct+'%</span></div><div style="display:flex;"><div class="defect-bar-bg"><div class="defect-bar-fill" style="width:'+pct+'%;background:'+colors[i%colors.length]+';height:7px;border-radius:4px;"></div></div></div></div>';
   }).join('');}
 
   // Insights
@@ -711,39 +711,39 @@ function renderInsights(recs,totalC,regDef,consultas,muestras,tiposSorted,tiposT
   var i1=document.getElementById('insightCaso');
   var c1=i1.closest('.insight-card');
   if(totalC>0){c1.className='insight-card '+(regDef>0?'action':'positive');c1.querySelector('.insight-title').className='insight-title '+(regDef>0?'action':'positive');i1.textContent='"'+topTipo[0]+'" concentra el '+Math.round((topTipo[1]/totalC)*100)+'% de los casos. '+(regDef>0?'Defectos activos requieren seguimiento.':'Sin defectos registrados esta semana.');}
-  else{c1.className='insight-card positive';i1.textContent='Sin casos en este período.';}
+  else{c1.className='insight-card positive';i1.textContent='Sin casos en este per\u00EDodo.';}
 
   var i2=document.getElementById('insightDefecto');
   var c2=i2.closest('.insight-card');
   if(tiposSorted.length>0&&tiposTotal>0){
     c2.className='insight-card action';c2.querySelector('.insight-title').className='insight-title action';
     var top2=tiposSorted.slice(0,2).map(function(e){return e[0]+' ('+e[1]+')';}).join(' y ');
-    i2.textContent='Los defectos más frecuentes son '+top2+'. Representan el '+Math.round((tiposSorted.slice(0,2).reduce(function(s,e){return s+e[1];},0)/tiposTotal)*100)+'% del total. Revisar proceso de control en esas áreas.';
-  } else{c2.className='insight-card positive';c2.querySelector('.insight-title').className='insight-title positive';i2.textContent='Sin defectos detectados en este período. El proceso operó dentro del estándar. ✓';}
+    i2.textContent='Los defectos m\u00E1s frecuentes son '+top2+'. Representan el '+Math.round((tiposSorted.slice(0,2).reduce(function(s,e){return s+e[1];},0)/tiposTotal)*100)+'% del total. Revisar proceso de control en esas \u00E1reas.';
+  } else{c2.className='insight-card positive';c2.querySelector('.insight-title').className='insight-title positive';i2.textContent='Sin defectos detectados en este per\u00EDodo. El proceso oper\u00F3 dentro del est\u00E1ndar. \u2713';}
 
   var i3=document.getElementById('insightPct');
   var c3=i3.closest('.insight-card');
   if(cantOT>0){
-    var nivel=pctDef===0?'óptimo':pctDef<1?'aceptable':pctDef<3?'en alerta':'crítico';
+    var nivel=pctDef===0?'\u00F3ptimo':pctDef<1?'aceptable':pctDef<3?'en alerta':'cr\u00EDtico';
     c3.className='insight-card '+(pctDef<1?'positive':'action');c3.querySelector('.insight-title').className='insight-title '+(pctDef<1?'positive':'action');
     i3.textContent='El '+pctDef+'% de las prendas presentaron defectos ('+totalDef+' de '+cantOT.toLocaleString()+'). Nivel '+nivel+'.';
-    if(prevPct!==null&&currentView==='semana'){var diff=pctDef-prevPct;i3.textContent+=diff>0.01?' Aumentó '+diff.toFixed(2)+'% vs semana anterior.':diff<-0.01?' Bajó '+Math.abs(diff).toFixed(2)+'% vs semana anterior. Mejora continua confirmada.':' Sin cambio vs semana anterior.';}
-  } else{c3.className='insight-card neutral';i3.textContent='Sin órdenes de trabajo en este período.';}
+    if(prevPct!==null&&currentView==='semana'){var diff=pctDef-prevPct;i3.textContent+=diff>0.01?' Aument\u00F3 '+diff.toFixed(2)+'% vs semana anterior.':diff<-0.01?' Baj\u00F3 '+Math.abs(diff).toFixed(2)+'% vs semana anterior. Mejora continua confirmada.':' Sin cambio vs semana anterior.';}
+  } else{c3.className='insight-card neutral';i3.textContent='Sin \u00F3rdenes de trabajo en este per\u00EDodo.';}
 
   var i4=document.getElementById('insightEfectividad');
   var c4=i4.closest('.insight-card');
   if(efectividad!==null){
     c4.className='insight-card '+(efectividad>=70?'positive':'neutral');c4.querySelector('.insight-title').className='insight-title '+(efectividad>=70?'positive':'');
-    i4.textContent='KnowFlow detectó '+(conf+noConf)+' defectos. El '+efectividad+'% fueron confirmados por el operario ('+conf+' de '+(conf+noConf)+'). '+(efectividad>=70?'Alta tasa de confirmación.':'Revisar seguimiento del operario ante alertas del sistema.');
-  } else{c4.className='insight-card neutral';i4.textContent='Sin defectos detectados por KnowFlow en este período.';}
+    i4.textContent='KnowFlow detect\u00F3 '+(conf+noConf)+' defectos. El '+efectividad+'% fueron confirmados por el operario ('+conf+' de '+(conf+noConf)+'). '+(efectividad>=70?'Alta tasa de confirmaci\u00F3n.':'Revisar seguimiento del operario ante alertas del sistema.');
+  } else{c4.className='insight-card neutral';i4.textContent='Sin defectos detectados por KnowFlow en este per\u00EDodo.';}
 }
 
-// ── TABLA ──────────────────────────────────────────────────
+// -- TABLA --------------------------------------------------
 function sortTable(col){
   if(sortCol===col) sortDir*=-1; else{sortCol=col;sortDir=-1;}
   document.querySelectorAll('thead th').forEach(function(th){th.classList.remove('sorted');});
   var el=document.getElementById('sort-'+col);
-  if(el){el.closest('th').classList.add('sorted');el.textContent=sortDir===1?'↑':'↓';}
+  if(el){el.closest('th').classList.add('sorted');el.textContent=sortDir===1?'\u2191':'\u2193';}
   renderTable();
 }
 
@@ -754,7 +754,7 @@ function renderTable(){
   var prod=document.getElementById('tblProducto').value;
   var df=document.getElementById('tblDateFrom').value;
   var dt=document.getElementById('tblDateTo').value;
-  if(tec) recs=recs.filter(function(r){return r.fields['Técnica']===tec;});
+  if(tec) recs=recs.filter(function(r){return r.fields['Tecnica']===tec;});
   if(cli) recs=recs.filter(function(r){return r.fields['Nombre Cliente']===cli;});
   if(prod) recs=recs.filter(function(r){return r.fields['Producto']===prod;});
   if(df) recs=recs.filter(function(r){return r.fields['Fecha']&&r.fields['Fecha']>=df;});
@@ -765,7 +765,7 @@ function renderTable(){
     if(sortCol==='pctNum'){av=fv(a,'% Defectos');bv=fv(b,'% Defectos');}
     else if(sortCol==='conf'){av=fv(a,'Defecto Detectado por KnowFlow Confirmados');bv=fv(b,'Defecto Detectado por KnowFlow Confirmados');}
     else if(sortCol==='noConf'){av=fv(a,'Defecto Detectado por KnowFlow No Confirmados');bv=fv(b,'Defecto Detectado por KnowFlow No Confirmados');}
-    else if(sortCol==='Tecnica'){av=a.fields['Técnica']||'';bv=b.fields['Técnica']||'';}
+    else if(sortCol==='Tecnica'){av=a.fields['Tecnica']||'';bv=b.fields['Tecnica']||'';}
     else{av=a.fields[sortCol]||0;bv=b.fields[sortCol]||0;}
     if(av<bv) return -sortDir; if(av>bv) return sortDir; return 0;
   });
@@ -777,21 +777,21 @@ function renderTable(){
   tbody.innerHTML=recs.map(function(r){
     var f=r.fields;
     var pct=f['% Defectos'];
-    var pctStr=pct!==undefined?(typeof pct==='number'?(pct*100).toFixed(2):pct)+'%':'—';
+    var pctStr=pct!==undefined?(typeof pct==='number'?(pct*100).toFixed(2):pct)+'%':'';
     var pctNum=parseFloat(pctStr)||0;
     var cls=pctNum===0?'badge-green':pctNum<1?'badge-amber':'badge-red';
     var defTot=f['Cantidad Defectos Totales']||0;
     var cantOTr=f['Cantidad OT']||0;
     var afect=defTot>0?defTot+' de '+cantOTr.toLocaleString():'0';
-    var fecha=f['Fecha']?new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    var fecha=f['Fecha']?new Date(f['Fecha']+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'}):'';
     var conf=f['Defecto Detectado por KnowFlow Confirmados']||0;
     var noConf=f['Defecto Detectado por KnowFlow No Confirmados']||0;
     return '<tr onclick="toggleRow(''+r.id+'')">' +
-      '<td><span class="td-ot">'+(f['Orden de Trabajo']||'—')+'</span></td>'+
+      '<td><span class="td-ot">'+(f['Orden de Trabajo']||'\u2014')+'</span></td>'+
       '<td>'+fecha+'</td>'+
-      '<td>'+(f['Nombre Cliente']||'—')+'</td>'+
-      '<td>'+(f['Técnica']||'—')+'</td>'+
-      '<td>'+(f['Producto']||'—')+'</td>'+
+      '<td>'+(f['Nombre Cliente']||'\u2014')+'</td>'+
+      '<td>'+(f['Tecnica']||'\u2014')+'</td>'+
+      '<td>'+(f['Producto']||'\u2014')+'</td>'+
       '<td style="font-family:var(--mono);font-size:11px;">'+cantOTr.toLocaleString()+'</td>'+
       '<td><span class="badge '+cls+'">'+pctStr+'</span></td>'+
       '<td style="font-family:var(--mono);font-size:11px;">'+afect+'</td>'+
