@@ -265,12 +265,7 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
 
 <!-- DEFECTOS FILTERS -->
 <div class="filters-bar" id="defFilters" style="display:none;">
-  <span class="fl">Fuente</span>
-  <button class="bw active" id="defSrcAll" onclick="setDefSrc('all')">Todas</button>
-  <button class="bw" id="defSrcReg" onclick="setDefSrc('reg')">Registro Defectos</button>
-  <button class="bw" id="defSrcMue" onclick="setDefSrc('mue')">Muestras</button>
-  <button class="bw" id="defSrcCon" onclick="setDefSrc('con')">Consultas</button>
-  <div style="width:1px;height:20px;background:var(--border)"></div>
+  <span class="fl">Período</span>
   <input type="date" id="defFrom" onchange="renderDefectos()">
   <span style="color:var(--muted);font-size:12px;">&#8594;</span>
   <input type="date" id="defTo" onchange="renderDefectos()">
@@ -383,14 +378,13 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
 <!-- DEFECTOS VIEW -->
 <div class="view" id="vDefectos">
 <div style="padding:20px 28px;max-width:1400px;margin:0 auto;">
-  <div class="g2" style="margin-bottom:14px;">
+  <div style="margin-bottom:14px;">
     <div class="card">
-      <div class="ch"><span class="ct">Todos los tipos de defecto</span><span class="ctag" id="allDefTag">cargando...</span></div>
+      <div class="ch">
+        <span class="ct">Todos los tipos de defecto</span>
+        <span class="ctag" id="allDefTag">cargando...</span>
+      </div>
       <div class="cb" id="allDefBars"><div class="empty-state">Cargando...</div></div>
-    </div>
-    <div class="card">
-      <div class="ch"><span class="ct">Distribución por fuente</span><span class="ctag">3 fuentes</span></div>
-      <div class="cb"><div class="cw"><canvas id="cFuentes"></canvas></div></div>
     </div>
   </div>
   <div class="card">
@@ -398,12 +392,12 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
     <div class="tw">
       <table>
         <thead><tr>
-          <th>Tipo de Defecto</th>
-          <th>Total</th>
-          <th>Reg. Defectos</th>
-          <th>Muestras</th>
-          <th>Consultas</th>
-          <th>% del total</th>
+          <th onclick="sortDefTbl('tipo')" style="cursor:pointer;">Tipo de Defecto <span class="si" id="dsh-tipo">&#8597;</span></th>
+          <th onclick="sortDefTbl('total')" style="cursor:pointer;">Total <span class="si" id="dsh-total">&#8595;</span></th>
+          <th onclick="sortDefTbl('reg')" style="cursor:pointer;">Reg. Defectos <span class="si" id="dsh-reg">&#8597;</span></th>
+          <th onclick="sortDefTbl('mue')" style="cursor:pointer;">Muestras <span class="si" id="dsh-mue">&#8597;</span></th>
+          <th onclick="sortDefTbl('con')" style="cursor:pointer;">Consultas <span class="si" id="dsh-con">&#8597;</span></th>
+          <th onclick="sortDefTbl('pct')" style="cursor:pointer;">% del total <span class="si" id="dsh-pct">&#8597;</span></th>
         </tr></thead>
         <tbody id="defTblBody"><tr><td colspan=6 class=empty-state>Cargando...</td></tr></tbody>
       </table>
@@ -418,8 +412,9 @@ var allOT = [], allReg = [], allMue = [], allCon = [];
 var currentView = 'semana', weekOffset = 0;
 var sortCol = 'fecha', sortDir = -1;
 var defSrc = 'all';
+var defSortCol = 'total'; var defSortDir = -1;
 var openRow = null;
-var cTend = null, cKF = null, cFuentes = null;
+var cTend = null, cKF = null;
 
 // \u2500\u2500 AUTH \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function checkLogin(){
@@ -768,7 +763,7 @@ function mkCaso(n, total, label, color, hex){
     '<div class="caso-num" style="color:'+color+'">'+n+'</div>'+
     '<div class="caso-label">'+label+'</div>'+
     '<div class="caso-pct">'+pct+'%</div>'+
-    '<div class="caso-bar" style="background:var(--surface2);"><div style="height:3px;border-radius:2px;width:'+barW+'%;background:'+hex+'"></div></div>'+
+    '<div class="caso-bar" style="background:var(--surface2);"><div style="height:3px;border-radius:2px;width:'+pct+'%;background:'+hex+'"></div></div>'+
   '</div>';
 }
 
@@ -944,16 +939,17 @@ function toggleRow(id){
 }
 
 // \u2500\u2500 DEFECTOS VIEW \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-function setDefSrc(src){
-  defSrc=src;
-  ['defSrcAll','defSrcReg','defSrcMue','defSrcCon'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  document.getElementById('defSrc'+src.charAt(0).toUpperCase()+src.slice(1)).classList.add('active');
-  renderDefectos();
-}
-
 function clearDefFilters(){
   document.getElementById('defFrom').value='';
   document.getElementById('defTo').value='';
+  renderDefectos();
+}
+
+function sortDefTbl(col){
+  if(defSortCol===col) defSortDir*=-1; else{defSortCol=col;defSortDir=-1;}
+  document.querySelectorAll('[id^="dsh-"]').forEach(function(el){el.textContent='\u21C5';el.closest('th').classList.remove('sorted');});
+  var el=document.getElementById('dsh-'+col);
+  if(el){el.textContent=defSortDir===1?'\u2191':'\u2193';el.closest('th').classList.add('sorted');}
   renderDefectos();
 }
 
@@ -967,15 +963,9 @@ function renderDefectos(){
   var counts={};
   var srcCounts={reg:0,mue:0,con:0};
 
-  if(defSrc==='all'||defSrc==='reg'){
-    reg.forEach(function(r){var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.reg++;}});
-  }
-  if(defSrc==='all'||defSrc==='mue'){
-    mue.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.mue++;}});
-  }
-  if(defSrc==='all'||defSrc==='con'){
-    con.forEach(function(r){if(r.fields['Defecto']==='Si'){var t=r.fields['Tipo de Defecto'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.con++;}}});
-  }
+  reg.forEach(function(r){var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.reg++;}});
+  mue.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.mue++;}});
+  con.forEach(function(r){if(r.fields['Defecto']==='Si'){var t=r.fields['Tipo de Defecto'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.con++;}}});
 
   var sorted=Object.entries(counts).sort(function(a,b){return b[1]-a[1];});
   var total=sorted.reduce(function(s,e){return s+e[1];},0);
@@ -987,24 +977,7 @@ function renderDefectos(){
   renderBars('allDefBars', counts, null);
 
   // Fuentes doughnut
-  var fCtx=document.getElementById('cFuentes').getContext('2d');
-  if(cFuentes) cFuentes.destroy();
-  cFuentes=new Chart(fCtx,{type:'doughnut',data:{
-    labels:['Reg. Defectos','Muestras','Consultas'],
-    datasets:[{data:[srcCounts.reg,srcCounts.mue,srcCounts.con],backgroundColor:['#E8541A','#1D4ED8','#15803D'],borderWidth:0,hoverOffset:4}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}});
-  var fStats=document.getElementById('fuentesStats');
-  if(fStats){
-    var fData=[['Reg. Defectos',srcCounts.reg,'#E8541A'],['Muestras',srcCounts.mue,'#1D4ED8'],['Consultas',srcCounts.con,'#15803D']];
-    var fTotal=srcCounts.reg+srcCounts.mue+srcCounts.con;
-    fStats.innerHTML=fData.map(function(d){
-      return '<div style="background:var(--surface2);border-radius:8px;padding:10px;text-align:center;">'+
-        '<div style="font-size:18px;font-weight:600;color:'+d[2]+'">'+d[1]+'</div>'+
-        '<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+d[0]+'</div>'+
-        '<div style="font-size:10px;font-family:var(--mono);color:var(--muted);">'+(fTotal>0?((d[1]/fTotal)*100).toFixed(1)+'%':'0%')+'</div>'+
-      '</div>';
-    }).join('');
-  }
+
 
   // Table
   var tbody=document.getElementById('defTblBody');
@@ -1015,6 +988,21 @@ function renderDefectos(){
   allReg.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].reg++;}});
   allMue.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].mue++;}});
   allCon.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;if(r.fields['Defecto']==='Si'){var t=r.fields['Tipo de Defecto'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].con++;}}});
+
+  // Apply sort
+  sorted.sort(function(a,b){
+    var av,bv;
+    var sa=bySrc[a[0]]||{reg:0,mue:0,con:0};
+    var sb=bySrc[b[0]]||{reg:0,mue:0,con:0};
+    if(defSortCol==='tipo'){av=a[0];bv=b[0];}
+    else if(defSortCol==='total'){av=a[1];bv=b[1];}
+    else if(defSortCol==='reg'){av=sa.reg;bv=sb.reg;}
+    else if(defSortCol==='mue'){av=sa.mue;bv=sb.mue;}
+    else if(defSortCol==='con'){av=sa.con;bv=sb.con;}
+    else if(defSortCol==='pct'){av=a[1];bv=b[1];}
+    else{av=a[1];bv=b[1];}
+    if(av<bv) return -defSortDir; if(av>bv) return defSortDir; return 0;
+  });
 
   tbody.innerHTML=sorted.map(function(e){
     var s=bySrc[e[0]]||{reg:0,mue:0,con:0};
