@@ -447,7 +447,7 @@ function switchView(v){
   document.getElementById('tblFilters').style.display = v==='tabla'?'flex':'none';
   document.getElementById('defFilters').style.display = v==='defectos'?'flex':'none';
   if(v==='tabla') renderTable();
-  if(v==='defectos') renderDefectos();
+  if(v==='defectos') setTimeout(renderDefectos, 50);
 }
 
 // \u2500\u2500 FETCH \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -972,7 +972,6 @@ function renderDefectos(){
   var sorted=Object.entries(counts).sort(function(a,b){return b[1]-a[1];});
   var total=sorted.reduce(function(s,e){return s+e[1];},0);
 
-  document.getElementById('allDefTag').textContent=sorted.length+' tipos \u00B7 '+total+' ocurrencias';
   document.getElementById('defTblTag').textContent=sorted.length+' tipos';
 
   // Fuentes doughnut
