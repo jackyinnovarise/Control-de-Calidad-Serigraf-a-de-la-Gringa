@@ -43,7 +43,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
 .header-left{display:flex;align-items:center;gap:14px;}
 .h-logo-kf{height:28px;object-fit:contain;}
-.h-logo-gringa{height:30px;object-fit:contain;}
+.h-logo-gringa{height:30px;object-fit:contain;mix-blend-mode:multiply;}
 .dv{width:1px;height:22px;background:var(--border);}
 .h-sub{font-size:11px;color:var(--muted);}
 .header-right{display:flex;align-items:center;gap:10px;}
@@ -114,7 +114,7 @@ select,input[type=date]{border:1px solid var(--border);border-radius:7px;padding
 
 /* SCORECARD CASOS - mejorado */
 .caso-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.caso-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;background:var(--surface2);border-radius:8px;min-height:80px;}
+.caso-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;background:var(--surface2);border-radius:8px;}
 .caso-num{font-size:28px;font-weight:600;line-height:1;margin-bottom:4px;}
 .caso-label{font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px;text-align:center;}
 .caso-pct{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:2px;}
@@ -194,7 +194,7 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
     <div class="login-logos">
       <img src="./knowflow-logo.png" style="height:30px;object-fit:contain;" alt="KnowFlow">
       <div class="login-logo-sep"></div>
-      <img src="./gringa-logo.png" style="height:26px;object-fit:contain;" alt="Serigrafía La Gringa">
+      <img src="./gringa-logo.png" style="height:26px;object-fit:contain;mix-blend-mode:multiply;" alt="Serigrafía La Gringa">
     </div>
     <div class="login-subtitle">Dashboard de Control de Calidad</div>
     <div class="login-client"><div class="login-client-dot"></div>Serigrafía La Gringa</div>
@@ -321,13 +321,13 @@ tbody td{padding:9px 12px;white-space:nowrap;color:var(--text);}
     </div>
     <div class="card">
       <div class="ch"><span class="ct">Tipos de caso</span><span class="ctag">casos KnowFlow</span></div>
-      <div class="cb" id="casoCard"><div class="empty-state">Cargando...</div></div>
+      <div class="cb" id="casoCard" style="display:flex;align-items:center;"><div class="empty-state">Cargando...</div></div>
     </div>
   </div>
 
   <div class="g2">
     <div class="card">
-      <div class="ch"><span class="ct">Defectos detectados por KnowFlow</span></div>
+      <div class="ch"><span class="ct">Defectos detectados por KnowFlow</span><span class="ctag" style="font-size:10px;color:var(--muted);background:none;padding:0;">Operarios que confirmaron el defecto reportado</span></div>
       <div class="cb" id="kfBody"><div class="cw"><canvas id="cKF"></canvas></div></div>
     </div>
     <div class="card">
@@ -481,6 +481,32 @@ async function loadAll(){
       fetchTable('Consultas')
     ]);
     allOT=res[0]; allReg=res[1]; allMue=res[2]; allCon=res[3];
+
+    // DEBUG - remove after validation
+    var target = 'Mal despitado';
+    var fromReg = allReg.filter(function(r){
+      var t = r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado']||'';
+      return t.toLowerCase().trim() === target.toLowerCase().trim();
+    }).length;
+    var fromMue = allMue.filter(function(r){
+      var t = r.fields['Tipo de Defecto Detectado']||'';
+      return t.toLowerCase().trim() === target.toLowerCase().trim();
+    }).length;
+    var fromCon = allCon.filter(function(r){
+      var t = r.fields['Tipo de Defecto']||'';
+      return r.fields['Defecto']==='Si' && t.toLowerCase().trim() === target.toLowerCase().trim();
+    }).length;
+    console.log('=== VALIDACION MAL DESPITADO ===');
+    console.log('Registro Defectos:', fromReg, '| campo usado: Tipo de Defecto');
+    console.log('Muestras:', fromMue, '| campo usado: Tipo de Defecto Detectado');
+    console.log('Consultas:', fromCon, '| campo usado: Tipo de Defecto (filtrado Defecto=Si)');
+    console.log('TOTAL:', fromReg+fromMue+fromCon, '| esperado: 16');
+    console.log('Total registros - Reg:', allReg.length, '| Muestras:', allMue.length, '| Consultas:', allCon.length);
+    // Check what field names exist in first record of each table
+    if(allReg.length>0) console.log('Campos en Registro Defectos:', Object.keys(allReg[0].fields).join(', '));
+    if(allMue.length>0) console.log('Campos en Muestras:', Object.keys(allMue[0].fields).join(', '));
+    if(allCon.length>0) console.log('Campos en Consultas:', Object.keys(allCon[0].fields).join(', '));
+    // END DEBUG
     populateTblFilters();
     applyFilters();
     renderTendencia();
@@ -573,7 +599,7 @@ function isSkip(v){ return !v || SKIP_VALS.indexOf(v.toLowerCase().trim())>=0; }
 
 function getTipos(reg, mue, con){
   var counts={};
-  reg.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)) counts[t]=(counts[t]||0)+1;});
+  reg.forEach(function(r){var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)) counts[t]=(counts[t]||0)+1;});
   mue.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)) counts[t]=(counts[t]||0)+1;});
   con.forEach(function(r){
     if(r.fields['Defecto']==='Si'){var t=r.fields['Tipo de Defecto'];if(t&&!isSkip(t)) counts[t]=(counts[t]||0)+1;}
@@ -797,9 +823,9 @@ function renderInsights(totalC,rd,co,mu,tiposSorted,pctDef,prevPct,conf,noConf,e
 
 // \u2500\u2500 TABLE VIEW \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function populateTblFilters(){
-  var tecs=Array.from(new Set(allOT.map(function(r){return r.fields['T\u00E9cnica'];}).filter(Boolean))).sort();
-  var clis=Array.from(new Set(allOT.map(function(r){return r.fields['Nombre Cliente'];}).filter(Boolean))).sort();
-  var prods=Array.from(new Set(allOT.map(function(r){return r.fields['Producto'];}).filter(Boolean))).sort();
+  var tecs=Array.from(new Set(allOT.map(function(r){var t=r.fields['T\u00E9cnica'];return t?t.trim():null;}).filter(Boolean))).sort();
+  var clis=Array.from(new Set(allOT.map(function(r){var t=r.fields['Nombre Cliente'];return t?t.trim():null;}).filter(Boolean))).sort();
+  var prods=Array.from(new Set(allOT.map(function(r){var t=r.fields['Producto'];return t?t.trim():null;}).filter(Boolean))).sort();
   document.getElementById('tblTecnica').innerHTML='<option value="">Todas las t\u00E9cnicas</option>'+tecs.map(function(t){return '<option>'+t+'</option>';}).join('');
   document.getElementById('tblCliente').innerHTML='<option value="">Todos los clientes</option>'+clis.map(function(c){return '<option>'+c+'</option>';}).join('');
   document.getElementById('tblProducto').innerHTML='<option value="">Todos los productos</option>'+prods.map(function(p){return '<option>'+p+'</option>';}).join('');
@@ -928,7 +954,7 @@ function renderDefectos(){
   var srcCounts={reg:0,mue:0,con:0};
 
   if(defSrc==='all'||defSrc==='reg'){
-    reg.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.reg++;}});
+    reg.forEach(function(r){var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.reg++;}});
   }
   if(defSrc==='all'||defSrc==='mue'){
     mue.forEach(function(r){var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){counts[t]=(counts[t]||0)+1;srcCounts.mue++;}});
@@ -952,7 +978,19 @@ function renderDefectos(){
   cFuentes=new Chart(fCtx,{type:'doughnut',data:{
     labels:['Reg. Defectos','Muestras','Consultas'],
     datasets:[{data:[srcCounts.reg,srcCounts.mue,srcCounts.con],backgroundColor:['#E8541A','#1D4ED8','#15803D'],borderWidth:0,hoverOffset:4}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12,boxWidth:9}}},cutout:'60%'}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}});
+  var fStats=document.getElementById('fuentesStats');
+  if(fStats){
+    var fData=[['Reg. Defectos',srcCounts.reg,'#E8541A'],['Muestras',srcCounts.mue,'#1D4ED8'],['Consultas',srcCounts.con,'#15803D']];
+    var fTotal=srcCounts.reg+srcCounts.mue+srcCounts.con;
+    fStats.innerHTML=fData.map(function(d){
+      return '<div style="background:var(--surface2);border-radius:8px;padding:10px;text-align:center;">'+
+        '<div style="font-size:18px;font-weight:600;color:'+d[2]+'">'+d[1]+'</div>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+d[0]+'</div>'+
+        '<div style="font-size:10px;font-family:var(--mono);color:var(--muted);">'+(fTotal>0?((d[1]/fTotal)*100).toFixed(1)+'%':'0%')+'</div>'+
+      '</div>';
+    }).join('');
+  }
 
   // Table
   var tbody=document.getElementById('defTblBody');
@@ -960,7 +998,7 @@ function renderDefectos(){
 
   // Per-source counts per tipo
   var bySrc={};
-  allReg.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].reg++;}});
+  allReg.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;var t=r.fields['Tipo de Defecto']||r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].reg++;}});
   allMue.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;var t=r.fields['Tipo de Defecto Detectado'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].mue++;}});
   allCon.forEach(function(r){var f=r.fields['Fecha'];if(df&&f&&f<df)return;if(dt&&f&&f>dt)return;if(r.fields['Defecto']==='Si'){var t=r.fields['Tipo de Defecto'];if(t&&!isSkip(t)){if(!bySrc[t])bySrc[t]={reg:0,mue:0,con:0};bySrc[t].con++;}}});
 
