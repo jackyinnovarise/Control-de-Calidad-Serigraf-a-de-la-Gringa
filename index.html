@@ -530,10 +530,9 @@ function checkLogin(){
     setTimeout(function(){ inp.classList.remove('error'); }, 400);
   }
 }
-if(sessionStorage.getItem('kf_auth')==='1'){
-  currentUser = sessionStorage.getItem('kf_user') || '';
-  document.getElementById('loginOverlay').classList.add('hidden');
-}
+// Clear session on every page load so each visit is logged
+sessionStorage.removeItem('kf_auth');
+sessionStorage.removeItem('kf_user');
 
 // \u2500\u2500 VIEW SWITCHING \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 function switchView(v){
@@ -548,6 +547,8 @@ function switchView(v){
   document.getElementById('defFilters').style.display = v==='defectos'?'flex':'none';
   if(v==='tabla') renderTable();
   if(v==='defectos') setTimeout(renderDefectos, 50);
+  var vName = v==='dash'?'Dashboard':v==='tabla'?'Detalle OT':'Analisis Defectos';
+  updateLog({'Vista': vName});
 }
 
 // \u2500\u2500 FETCH \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -565,12 +566,16 @@ async function fetchTable(name){
   return recs;
 }
 
+var _loginTime = null;
+var _logRecordId = null;
+
 function logAccess(usuario){
   try {
-    var now = new Date();
-    var fecha = now.toLocaleDateString('es-GT', {day:'2-digit',month:'2-digit',year:'numeric'});
-    var hora = now.toLocaleTimeString('es-GT', {hour:'2-digit',minute:'2-digit', hour12:true});
+    _loginTime = new Date();
+    var fecha = _loginTime.toLocaleDateString('es-GT', {day:'2-digit',month:'2-digit',year:'numeric'});
+    var hora = _loginTime.toLocaleTimeString('es-GT', {hour:'2-digit',minute:'2-digit', hour12:true});
     var dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+    var filtro = 'Semanal';
     fetch('/api/airtable', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -580,12 +585,42 @@ function logAccess(usuario){
           'Fecha': fecha,
           'Hora': hora,
           'Usuario': usuario,
-          'Dispositivo': dispositivo
+          'Dispositivo': dispositivo,
+          'Vista': 'Dashboard',
+          'Filtro': filtro,
+          'Duracion (min)': '0'
         }
       })
-    });
+    }).then(function(r){ return r.json(); })
+    .then(function(d){ _logRecordId = d.id || null; })
+    .catch(function(e){ console.log('Log error:', e); });
   } catch(e) { console.log('Log error:', e); }
 }
+
+function updateLog(fields){
+  if(!_logRecordId) return;
+  try {
+    fetch('/api/airtable?id='+_logRecordId, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        table: 'Dashboard Logs',
+        id: _logRecordId,
+        fields: fields
+      })
+    }).catch(function(){});
+  } catch(e){}
+}
+
+function logDuration(){
+  if(!_loginTime || !_logRecordId) return;
+  var mins = Math.round((new Date() - _loginTime) / 60000);
+  if(mins < 1) mins = 1;
+  updateLog({'Duracion (min)': String(mins)});
+}
+
+// Log duration when user leaves
+window.addEventListener('beforeunload', function(){ logDuration(); });
 
 async function loadAll(){
   var btn=document.getElementById('refreshBtn');
@@ -654,6 +689,7 @@ function fmtShort(d){return d.toLocaleDateString('es-GT',{day:'2-digit',month:'s
 
 function setView(v){
   currentView=v;
+  updateLog({'Filtro': v.charAt(0).toUpperCase()+v.slice(1)});
   ['btnS','btnC','btnP'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   document.getElementById(v==='semana'?'btnS':v==='consolidado'?'btnC':'btnP').classList.add('active');
   document.getElementById('weekNav').style.display=v==='semana'?'flex':'none';
