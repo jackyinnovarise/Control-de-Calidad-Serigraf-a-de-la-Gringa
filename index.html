@@ -547,8 +547,11 @@ function switchView(v){
   document.getElementById('defFilters').style.display = v==='defectos'?'flex':'none';
   if(v==='tabla') renderTable();
   if(v==='defectos') setTimeout(renderDefectos, 50);
-  var vName = v==='dash'?'Dashboard':v==='tabla'?'Detalle OT':'Analisis Defectos';
-  updateLog({'Vista': vName});
+  var vName = v==='dash'?'Dashboard':v==='tabla'?'Detalle OT':'An\u00E1lisis Defectos';
+  if(_visitPath.length === 0 || _visitPath[_visitPath.length-1] !== vName){
+    _visitPath.push(vName);
+    updateLog({'Vista': _visitPath.join(' \u2192 ')});
+  }
 }
 
 // \u2500\u2500 FETCH \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -568,6 +571,7 @@ async function fetchTable(name){
 
 var _loginTime = null;
 var _logRecordId = null;
+var _visitPath = [];
 
 function logAccess(usuario){
   try {
@@ -588,12 +592,15 @@ function logAccess(usuario){
           'Dispositivo': dispositivo,
           'Vista': 'Dashboard',
           'Filtro': filtro,
-          'Duracion (min)': '0'
+          'Duraci\u00F3n (min)': '0'
         }
       })
     }).then(function(r){ return r.json(); })
-    .then(function(d){ _logRecordId = d.id || null; })
-    .catch(function(e){ console.log('Log error:', e); });
+    .then(function(d){ 
+      if(d.error) console.error('Log POST error:', d.error);
+      else { _logRecordId = d.id || null; _visitPath = ['Dashboard']; }
+    })
+    .catch(function(e){ console.log('Log fetch error:', e); });
   } catch(e) { console.log('Log error:', e); }
 }
 
@@ -616,7 +623,7 @@ function logDuration(){
   if(!_loginTime || !_logRecordId) return;
   var mins = Math.round((new Date() - _loginTime) / 60000);
   if(mins < 1) mins = 1;
-  updateLog({'Duracion (min)': String(mins)});
+  updateLog({'Duraci\u00F3n (min)': String(mins)});
 }
 
 // Log duration when user leaves
